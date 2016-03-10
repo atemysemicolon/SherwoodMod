@@ -2,6 +2,7 @@
 
 #include "Features.h"
 
+
 namespace MicrosoftResearch { namespace Cambridge { namespace Sherwood
 {
     AxisAlignedFeature AxisAlignedFeatureFactory::CreateRandom(Random& random)
