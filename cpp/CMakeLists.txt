@@ -22,8 +22,12 @@ set(SOURCE_FILES
     demo/source/SemiSupervisedClassification.cpp
     demo/source/StatisticsAggregators.cpp)
 
-    include_directories("${CMAKE_SOURCE_DIR}/lib")
-    include_directories("${CMAKE_SOURCE_DIR}/demo/source")
-
+include_directories("${CMAKE_SOURCE_DIR}/lib")
+include_directories("${CMAKE_SOURCE_DIR}/demo/source")
 
 add_executable(sw ${SOURCE_FILES})
+
+add_library(svmlib demo/source/svm_utils.cpp)
+add_executable(svm_test demo/source/svm_test.cpp)
+target_link_libraries(svm_test svmlib svm)
+
