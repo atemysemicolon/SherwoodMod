@@ -1,5 +1,6 @@
 #pragma once
-
+#include <boost/python.hpp>
+#include <iostream>
 // This file defines interfaces used during decision forest training and
 // evaluation. These interfaces are intended to be implemented within client
 // code.
@@ -133,3 +134,29 @@ namespace MicrosoftResearch { namespace Cambridge { namespace Sherwood
     virtual bool ShouldTerminate(const S& parent, const S& leftChild, const S& rightChild, double gain) = 0;
   };
 } } }
+/*
+
+using namespace boost::python;
+using namespace MicrosoftResearch::Cambridge::Sherwood;
+struct IDataPointCollectionWrap : IDataPointCollection, wrapper<IDataPointCollection>
+{
+    IDataPointCollectionWrap(){}
+
+    IDataPointCollectionWrap(IDataPointCollection &rhs) :  IDataPointCollection(rhs)
+    { }
+    unsigned int Count() const
+    {
+        return this->get_override("Count")();
+    }
+
+};
+
+BOOST_PYTHON_MODULE(IDataPointCollection)
+  {
+
+    class_<IDataPointCollectionWrap>("IDataPointCollection")
+            .def("Count",pure_virtual(&IDataPointCollection::Count))
+            ;
+
+
+}*/

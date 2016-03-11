@@ -7,6 +7,9 @@
 
 #include "Sherwood.h"
 
+#include <boost/python.hpp>
+#include<boost/python.hpp>
+
 namespace MicrosoftResearch { namespace Cambridge { namespace Sherwood
 {
   /// <summary>
@@ -186,3 +189,6 @@ namespace MicrosoftResearch { namespace Cambridge { namespace Sherwood
   // Convert a std::string to a float (or raise an exception).
   float to_float(const std::string& s);
 } } }
+
+
+
