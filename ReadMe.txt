@@ -1,4 +1,10 @@
-﻿Sherwood: A software library for decision forest inference
+﻿***FORK OF MICROSOFT'S SHERWOOD LIBRARY***
+**Don't know the License format. Please refer to the original for rights**
+*http://research.microsoft.com/en-us/downloads/52d5b9c3-a638-42a1-94a5-d549e2251728/*
+
+
+
+Sherwood: A software library for decision forest inference
 ==========================================================
 
 PLEASE VIEW THIS FILE WTIH WORD WRAP ON!
