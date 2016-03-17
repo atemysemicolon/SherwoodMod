@@ -17,6 +17,8 @@
 #include "Interfaces.h"
 #include "Tree.h"
 
+#include <omp.h>
+
 namespace MicrosoftResearch { namespace Cambridge { namespace Sherwood
 {
   class Random;
@@ -280,6 +282,8 @@ namespace MicrosoftResearch { namespace Cambridge { namespace Sherwood
 
       return tree;
     }
+
+
   };
 
   /// <summary>
@@ -323,5 +327,38 @@ namespace MicrosoftResearch { namespace Cambridge { namespace Sherwood
 
       return forest;
     }
+
+
+      static std::auto_ptr<Forest<F,S> > TrainForestParallel(
+              Random& random,
+      const TrainingParameters& parameters,
+              ITrainingContext<F,S>& context,
+      const IDataPointCollection& data,
+              ProgressStream* progress=0)
+      {
+        ProgressStream defaultProgress(std::cout, parameters.Verbose? Verbose:Interest);
+        if(progress==0)
+          progress=&defaultProgress;
+
+        std::auto_ptr<Forest<F,S> > forest = std::auto_ptr<Forest<F,S> >(new Forest<F,S>());
+
+        #pragma omp parallel for
+        for (int t = 0; t < parameters.NumberOfTrees; t++)
+        {
+          #pragma omp critical
+          {
+            (*progress)[Interest] << "\rTraining tree "<< t << "...";
+          }
+
+          std::auto_ptr<Tree<F, S> > tree = TreeTrainer<F, S>::TrainTree(random, context, parameters, data, progress);
+          #pragma omp critical
+          {
+            forest->AddTree(tree);
+          }
+        }
+        (*progress)[Interest] << "\rTrained " << parameters.NumberOfTrees << " trees.         " << std::endl;
+
+        return forest;
+      }
   };
 } } }

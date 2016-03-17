@@ -9,6 +9,8 @@
 #include "Tree.h"
 #include "Node.h"
 
+#include "ParallelForestTrainer.h"
 #include "ForestTrainer.h"
+
 
 #include "Interfaces.h"

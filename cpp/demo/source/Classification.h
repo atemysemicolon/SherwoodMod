@@ -108,9 +108,13 @@ namespace MicrosoftResearch { namespace Cambridge { namespace Sherwood
 
       ClassificationTrainingContext<F> classificationContext(trainingData.CountClasses(), featureFactory);
 
-      std::auto_ptr<Forest<F, HistogramAggregator> > forest 
-        = ForestTrainer<F, HistogramAggregator>::TrainForest (
+      std::auto_ptr<Forest<F, HistogramAggregator> > forest
+        = ForestTrainer<F, HistogramAggregator>::TrainForestParallel (
         random, TrainingParameters, classificationContext, trainingData );
+
+
+
+      //      std::auto_ptr<Forest<F,HistogramAggregator> >forest = ParallelForestTrainer<F,HistogramAggregator>::TrainForest(random, TrainingParameters, classificationContext, trainingData);
 
       return forest;
     }

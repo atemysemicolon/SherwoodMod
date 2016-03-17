@@ -28,7 +28,7 @@ set(SOURCE_FILES
     demo/source/CommandLineParser.cpp
     demo/source/CumulativeNormalDistribution.cpp
     demo/source/DataPointCollection.cpp
-    demo/source/DensityEstimation.cpp
+    #demo/source/DensityEstimation.cpp
     demo/source/dibCodec.cpp
     demo/source/FeatureResponseFunctions.cpp
     demo/source/FloydWarshall.cpp
@@ -36,8 +36,8 @@ set(SOURCE_FILES
     demo/source/main.cpp
     demo/source/Platform.cpp
     demo/source/PlotCanvas.cpp
-    demo/source/Regression.cpp
-    demo/source/SemiSupervisedClassification.cpp
+    #demo/source/Regression.cpp
+    #demo/source/SemiSupervisedClassification.cpp
     demo/source/StatisticsAggregators.cpp)
 
 include_directories("${CMAKE_SOURCE_DIR}/lib")
