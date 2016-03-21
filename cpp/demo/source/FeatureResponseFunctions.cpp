@@ -7,9 +7,14 @@
 #include "DataPointCollection.h"
 #include "Random.h"
 
+#include <eigen3/Eigen/Eigen>
+#include "svm_utils.h"
+#include "eigen_extensions.h"
+
+
 namespace MicrosoftResearch { namespace Cambridge { namespace Sherwood
 {
-  AxisAlignedFeatureResponse AxisAlignedFeatureResponse ::CreateRandom(Random& random)
+  AxisAlignedFeatureResponse AxisAlignedFeatureResponse ::CreateRandom(Random& random, const IDataPointCollection& data, unsigned int* dataIndices, const unsigned int i0, const unsigned int i1, bool root_node)
   {
     return AxisAlignedFeatureResponse(random.Next(0, 2));
   }
@@ -29,7 +34,7 @@ namespace MicrosoftResearch { namespace Cambridge { namespace Sherwood
   }
 
   /// <returns>A new LinearFeatureResponse2d instance.</returns>
-  LinearFeatureResponse2d LinearFeatureResponse2d::CreateRandom(Random& random)
+  LinearFeatureResponse2d LinearFeatureResponse2d::CreateRandom(Random& random, const IDataPointCollection& data, unsigned int* dataIndices, const unsigned int i0, const unsigned int i1, bool root_node)
   {
     double dx = 2.0 * random.NextDouble() - 1.0;
     double dy = 2.0 * random.NextDouble() - 1.0;
@@ -52,5 +57,119 @@ namespace MicrosoftResearch { namespace Cambridge { namespace Sherwood
 
     return s.str();
   }
+
+
+  /// <returns>A new LinearFeatureResponse instance.</returns>
+  LinearFeatureResponse LinearFeatureResponse::CreateRandom(Random& random, const IDataPointCollection& data, unsigned int* dataIndices, const unsigned int i0, const unsigned int i1, bool root_node=false)
+  {
+    LinearFeatureResponse lr;
+    //lr.dimensions_ = data.GetDimension();
+    const DataPointCollection& concreteData = (const DataPointCollection&)(data);
+    lr.dimensions_ = concreteData.Dimensions();
+    lr.vWeights_.resize(lr.dimensions_,-1);
+
+    double magnitude = 0.0f;
+    for (int i=0; i<lr.dimensions_; i++)
+    {
+      double rnd = 2.0 * random.NextDouble() - 1.0;
+      magnitude += rnd*rnd;
+      lr.vWeights_[i] = (float)rnd;
+    }
+    magnitude = sqrt(magnitude);
+
+    for (int i=0; i<lr.dimensions_; i++)
+      lr.vWeights_[i] /= (float)magnitude;
+
+    lr.dimensions_ = concreteData.Dimensions();
+    return lr;
+  }
+
+  float LinearFeatureResponse::GetResponse(const IDataPointCollection& data, unsigned int index) const
+  {
+    // Multiply the weights by the vector to classify and sum
+    //return vec4::Dot(&vWeights_[0], ((const DataPointCollection&)(data)).GetDataPoint((int)index), dimensions_) + bias_;
+    const DataPointCollection& concreteData = (const DataPointCollection&)(data);
+    std::vector<float> rowData = concreteData.GetDataPointRange(index);
+    float response = std::inner_product(rowData.begin(),rowData.end(), vWeights_.begin(), bias_);
+    return response;
+
+  }
+
+  std::string LinearFeatureResponse::ToString() const
+  {
+    std::stringstream s;
+    s << "LinearFeatureResponse(";
+    s << vWeights_[0];
+    for (int i=1; i<dimensions_; i++)
+      s << "," << vWeights_[i];
+    s << ")";
+
+    return s.str();
+  }
+
+
+
+
+//MAIN STUFF
+    void LinearFeatureResponseSVM::GenerateMask(Random &random, std::vector<int>& vIndex, int dims, bool root_node)
+    {
+
+        int numBloks = random.Next(1, dims);
+
+        for(int i=0;i<numBloks;i++)
+        {
+            int indx = random.Next(0,dims);
+            vIndex.push_back(indx);
+        }
+
+    }
+
+    LinearFeatureResponseSVM LinearFeatureResponseSVM::CreateRandom(Random& random, const IDataPointCollection& data, unsigned int* dataIndices, const unsigned int i0, const unsigned int i1, bool root_node)
+    {
+        using namespace esvm;
+        LinearFeatureResponseSVM lr;
+        const DataPointCollection& concreteData = (const DataPointCollection&)(data);
+        //this->dimensions_ =  concreteData.Dimensions();
+        lr.dimensions_ = concreteData.Dimensions();
+        GenerateMask(random, lr.vIndex_, lr.dimensions_, root_node);
+        int nWeights = lr.vIndex_.size();
+
+        // Copy the samples for training this classifier
+        int nSamples = i1-i0+1;
+        //std::vector<std::vector<float> > vFeatures(nSamples, std::vector<float>(nWeights));
+        Eigen::MatrixXf vFeatures(nSamples, nWeights);
+        std::vector<int> vLabels(nSamples);
+        int indx=0;
+        for (unsigned int i=i0; i<i1; i++, indx++)
+        {
+            //memcpy(&vFeatures[indx][0], ((DataPointCollection&)data).GetDataPoint(dataIndices[i]), lr.dimensions_*sizeof(float));
+            std::vector<float> rowData = concreteData.GetDataPointRange(dataIndices[i]);
+            for(int j=0;j<nWeights;j++)
+                vFeatures(indx, j) = rowData[lr.vIndex_[j]];
+            vLabels[indx] = (int)((DataPointCollection&)data).GetIntegerLabel(dataIndices[i]);
+        }
+
+        //SVM TRAINING PART
+        SVMClassifier svm;
+        svm.train(vFeatures, vLabels);
+        Eigen::MatrixXf w;
+        float b;
+        svm.getw(w, lr.bias_);
+
+
+        //Hacky way
+        for(int k=0;k<w.rows();k++)
+            lr.vWeights_.push_back(w(k,0));
+
+
+
+
+
+
+
+
+        return lr;
+    }
+
 
 } } }

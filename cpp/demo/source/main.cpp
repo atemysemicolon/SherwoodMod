@@ -123,13 +123,13 @@ int main(int argc, char* argv[])
     if (split.Value == "linear")
     {
       LinearFeatureFactory linearFeatureFactory;
-      std::auto_ptr<Forest<LinearFeatureResponse2d, HistogramAggregator> > forest = ClassificationDemo<LinearFeatureResponse2d>::Train(
+      std::auto_ptr<Forest<LinearFeatureResponse, HistogramAggregator> > forest = ClassificationDemo<LinearFeatureResponse>::Train(
         *trainingData,
         &linearFeatureFactory,
         trainingParameters);
 
       std::auto_ptr<Bitmap<PixelBgr> > result = std::auto_ptr<Bitmap<PixelBgr> >(
-        ClassificationDemo<LinearFeatureResponse2d>::Visualize(*forest, *trainingData, Size(300, 300), plotDilation));
+        ClassificationDemo<LinearFeatureResponse>::Visualize(*forest, *trainingData, Size(300, 300), plotDilation));
 
       std::cout << "\nSaving output image to result.dib" << std::endl;
       result->Save("result.dib");

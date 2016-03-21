@@ -149,6 +149,19 @@ namespace MicrosoftResearch { namespace Cambridge { namespace Sherwood
       return &data_[i*dimension_];
     }
 
+
+    /// <summary>
+    /// Get the vector starting from the specific data point.
+    /// </summary>
+    /// <param name="i">Zero-based data point index.</param>
+    /// <returns>Pointer to the first element of the data point.</returns>
+    const std::vector<float> GetDataPointRange(int i) const
+    {
+      std::vector<float> v1(data_.begin() + i*dimension_, data_.begin()+i*dimension_+dimension_);
+      return v1;
+    }
+
+
     /// <summary>
     /// Get the class label for the specified data point (or raise an
     /// exception if these data points do not have associated labels).

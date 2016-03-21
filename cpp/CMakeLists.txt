@@ -43,12 +43,12 @@ set(SOURCE_FILES
 include_directories("${CMAKE_SOURCE_DIR}/lib")
 include_directories("${CMAKE_SOURCE_DIR}/demo/source")
 
-#Main Stuff
-add_executable(sw ${SOURCE_FILES})
-target_link_libraries(sw ${Boost_LIBRARIES} ${PYTHON_LIBRARIES})
 
 #SVM TEST
 add_library(svmlib demo/source/svm_utils.cpp)
 add_executable(svm_test demo/source/svm_test.cpp)
 target_link_libraries(svm_test svmlib svm)
 
+#Main Stuff
+add_executable(sw ${SOURCE_FILES})
+target_link_libraries(sw ${Boost_LIBRARIES} ${PYTHON_LIBRARIES} svmlib svm)

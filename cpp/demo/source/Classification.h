@@ -22,19 +22,33 @@ namespace MicrosoftResearch { namespace Cambridge { namespace Sherwood
   class IFeatureResponseFactory
   {
   public:
-    virtual F CreateRandom(Random& random)=0;
+    virtual F CreateRandom(Random& random, const IDataPointCollection& data, unsigned int* dataIndices, const unsigned int i0, const unsigned int i1, bool root_node)=0;
   };
 
-  class LinearFeatureFactory: public IFeatureResponseFactory<LinearFeatureResponse2d>
+/*  class LinearFeatureFactory: public IFeatureResponseFactory<LinearFeatureResponse2d>
   {
   public:
     LinearFeatureResponse2d CreateRandom(Random& random);
   };
+  */
+
+  class LinearFeatureFactory: public IFeatureResponseFactory<LinearFeatureResponse>
+  {
+  public:
+      LinearFeatureResponse CreateRandom(Random& random, const IDataPointCollection& data, unsigned int* dataIndices, const unsigned int i0, const unsigned int i1, bool root_node);
+  };
+
 
   class AxisAlignedFeatureResponseFactory : public IFeatureResponseFactory<AxisAlignedFeatureResponse>
   {
   public:
-    AxisAlignedFeatureResponse CreateRandom(Random& random);
+    AxisAlignedFeatureResponse CreateRandom(Random& random, const IDataPointCollection& data, unsigned int* dataIndices, const unsigned int i0, const unsigned int i1, bool root_node);
+  };
+
+  class LinearFeatureResponseSVMFactory: public IFeatureResponseFactory<LinearFeatureResponseSVM>
+  {
+  public:
+      LinearFeatureResponseSVM CreateRandom(Random& random, const IDataPointCollection& data, unsigned int* dataIndices, const unsigned int i0, const unsigned int i1, bool root_node);
   };
 
   template<class F>
@@ -42,6 +56,8 @@ namespace MicrosoftResearch { namespace Cambridge { namespace Sherwood
   {
   private:
     int nClasses_;
+    float minIG_;
+    unsigned int minSamples_;
 
     IFeatureResponseFactory<F>* featureFactory_;
 
@@ -54,9 +70,9 @@ namespace MicrosoftResearch { namespace Cambridge { namespace Sherwood
 
   private:
     // Implementation of ITrainingContext
-    F GetRandomFeature(Random& random)
+    F GetRandomFeature(Random& random, const IDataPointCollection& data, unsigned int* dataIndices, const unsigned int i0, const unsigned int i1, bool root_node)
     {
-      return featureFactory_->CreateRandom(random);
+      return featureFactory_->CreateRandom(random, data, dataIndices,i0,i1,root_node);
     }
 
     HistogramAggregator GetStatisticsAggregator()
@@ -105,6 +121,7 @@ namespace MicrosoftResearch { namespace Cambridge { namespace Sherwood
       std::cout << "Running training..." << std::endl;
 
       Random random;
+
 
       ClassificationTrainingContext<F> classificationContext(trainingData.CountClasses(), featureFactory);
 
