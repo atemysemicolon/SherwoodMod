@@ -120,8 +120,14 @@ int main(int argc, char* argv[])
     std::auto_ptr<DataPointCollection> trainingData = std::auto_ptr<DataPointCollection> ( LoadTrainingData(
       trainingDataPath.Value,
       CLAS_DATA_PATH + "/" + trainingDataPath.Value,
-      2,
+      3,
       DataDescriptor::HasClassLabels ) );
+
+    std::string test_filename = "../../demo/data/sclf/sample_test.txt";
+    std::auto_ptr<DataPointCollection> testdata = std::auto_ptr<DataPointCollection> ( LoadTrainingData(test_filename,
+            CLAS_DATA_PATH + "/" + trainingDataPath.Value,
+            3,
+            DataDescriptor::HasClassLabels ) );
 
 
 
@@ -138,11 +144,20 @@ int main(int argc, char* argv[])
         &linearFeatureFactory,
         trainingParameters);
 
-      std::auto_ptr<Bitmap<PixelBgr> > result = std::auto_ptr<Bitmap<PixelBgr> >(
-        ClassificationDemo<LinearFeatureResponseSVM>::Visualize(*forest, *trainingData, Size(300, 300), plotDilation));
+      forest->Serialize("out.forest");
+      std::auto_ptr<Forest<LinearFeatureResponseSVM, HistogramAggregator> > trained_forest = Forest<LinearFeatureResponseSVM, HistogramAggregator>::Deserialize("out.forest");
 
+      /*std::auto_ptr<Bitmap<PixelBgr> > result = std::auto_ptr<Bitmap<PixelBgr> >(ClassificationDemo<LinearFeatureResponseSVM>::Visualize(*forest, *trainingData, Size(300, 300), plotDilation));
       std::cout << "\nSaving output image to result.dib" << std::endl;
       result->Save("result.dib");
+       */
+
+      std::vector<HistogramAggregator> distbns;
+      ClassificationDemo<LinearFeatureResponseSVM>::Test(*trained_forest.get(), *testdata.get(), distbns);
+
+      forest.release();
+      trained_forest.release();
+      distbns.clear();
     }
 
   }

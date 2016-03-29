@@ -103,6 +103,88 @@ namespace MicrosoftResearch { namespace Cambridge { namespace Sherwood
   template<class F>
   class ClassificationDemo
   {
+      static const PixelBgr UnlabelledDataPointColor;
+
+  public:
+      static std::auto_ptr<Forest<F, HistogramAggregator> > Train (
+              const DataPointCollection& trainingData,
+              IFeatureResponseFactory<F>* featureFactory,
+              const TrainingParameters& TrainingParameters ) // where F : IFeatureResponse
+      {
+        if (trainingData.HasLabels() == false)
+          throw std::runtime_error("Training data points must be labelled.");
+        if (trainingData.HasTargetValues() == true)
+          throw std::runtime_error("Training data points should not have target values.");
+
+        std::cout << "Running training..." << std::endl;
+
+        Random random;
+
+
+        ClassificationTrainingContext<F> classificationContext(trainingData.CountClasses(), featureFactory);
+
+        std::auto_ptr<Forest<F, HistogramAggregator> > forest
+                = ForestTrainer<F, HistogramAggregator>::TrainForest (
+                        random, TrainingParameters, classificationContext, trainingData );
+
+
+
+        //      std::auto_ptr<Forest<F,HistogramAggregator> >forest = ParallelForestTrainer<F,HistogramAggregator>::TrainForest(random, TrainingParameters, classificationContext, trainingData);
+
+        return forest;
+      }
+
+
+
+      /// <summary>
+      /// Apply a trained forest to some test data.
+      /// </summary>
+      /// <typeparam name="F">Type of split function</typeparam>
+      /// <param name="forest">Trained forest</param>
+      /// <param name="testData">Test data</param>
+      /// <returns>An array of class distributions, one per test data point</returns>
+      static void Test(const Forest<F, HistogramAggregator>& forest, const DataPointCollection& testData, std::vector<HistogramAggregator>& distributions) // where F : IFeatureResponse
+      {
+        int correct = 0 ;
+        int nClasses = forest.GetTree(0).GetNode(0).TrainingDataStatistics.BinCount();
+
+        std::vector<std::vector<int> > leafIndicesPerTree;
+        forest.Apply(testData, leafIndicesPerTree);
+
+        std::vector<HistogramAggregator> result(testData.Count());
+
+        for (int i = 0; i < testData.Count(); i++)
+        {
+          // Aggregate statistics for this sample over all leaf nodes reached
+          result[i] = HistogramAggregator(nClasses);
+          for (int t = 0; t < forest.TreeCount(); t++)
+          {
+            int leafIndex = leafIndicesPerTree[t][i];
+            result[i].Aggregate(forest.GetTree(t).GetNode(leafIndex).TrainingDataStatistics);
+
+          }
+          int GT = testData.GetIntegerLabel(i);
+          int pred_class = result[i].FindTallestBinIndex();
+          float prob = result[i].GetProbability(pred_class);
+          if(GT == pred_class)
+            correct++;
+
+          std::cout<<"[DEBUG : GT, Class, probablility]  - "<<GT<<" "<<pred_class<<" "<<prob<<std::endl;
+        }
+
+        distributions  = result;
+        std::cout<<"[DEBUG : score]  - "<<correct<<" / "<<testData.Count()<<std::endl;
+
+        //return result;
+      }
+  };
+
+  template<class F>
+  const PixelBgr ClassificationDemo<F>::UnlabelledDataPointColor = PixelBgr::FromArgb(192, 192, 192);
+
+/*  template<class F>
+  class ClassificationDemo
+  {
     static const PixelBgr UnlabelledDataPointColor;
 
   public:
@@ -249,12 +331,17 @@ namespace MicrosoftResearch { namespace Cambridge { namespace Sherwood
           int leafIndex = leafIndicesPerTree[t][i];
           result[i].Aggregate(forest.GetTree(t).GetNode(leafIndex).TrainingDataStatistics);
         }
+
+        std::cout<<"[DEBUG : Class, probablility]  - "<<result[i].FindTallestBinIndex()<<" "<<result[i].GetProbability(result[i].FindTallestBinIndex())<<std::endl;
       }
 
-      return result;
+      distributions  = result;
+
+      //return result;
     }
   };
 
   template<class F>
   const PixelBgr ClassificationDemo<F>::UnlabelledDataPointColor = PixelBgr::FromArgb(192, 192, 192);
+  */
 } } }
