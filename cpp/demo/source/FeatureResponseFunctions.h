@@ -147,14 +147,39 @@ namespace MicrosoftResearch { namespace Cambridge { namespace Sherwood
   };
 
 
-    class LinearFeatureResponseSVM : public LinearFeatureResponse
+    class LinearFeatureResponseSVM
     {
     protected:
         std::vector<int> vIndex_;
+        std::vector<float> vWeights_;
+        int		dimensions_;
+        float	bias_;
+        int		nIndex_;
 
     public:
+        LinearFeatureResponseSVM():
+                dimensions_(-1),
+                bias_(0.0f)
+        {
+            //m_param_filename = "/home/prassanna/Development/Code3/Parameters/parametersTaskManager2.ini";
+        }
+
+        /// <summary>
+        /// Create a LinearFeatureResponse instance for the specified direction vector.
+        /// </summary>
+        /// <param name="dx">The first element of the direction vector.</param>
+        /// <param name="dx">The second element of the direction vector.</param>
+        LinearFeatureResponseSVM(float* pWeights, const int dimensions)
+        {
+
+            vWeights_ = std::vector<float>(pWeights, pWeights+sizeof pWeights/sizeof pWeights[0]);
+            dimensions_ = dimensions;
+        }
         static LinearFeatureResponseSVM CreateRandom(Random& random, const IDataPointCollection& data, unsigned int* dataIndices, const unsigned int i0, const unsigned int i1, bool root_node=false);
         static void GenerateMask(Random& random, std::vector<int>& vIndex, int dims , bool root_node);
+
+        float GetResponse(const IDataPointCollection &data, unsigned int index) const;
+        std::string ToString()  const;
     };
 
 

@@ -45,7 +45,7 @@ namespace MicrosoftResearch { namespace Cambridge { namespace Sherwood
     AxisAlignedFeatureResponse CreateRandom(Random& random, const IDataPointCollection& data, unsigned int* dataIndices, const unsigned int i0, const unsigned int i1, bool root_node);
   };
 
-  class LinearFeatureResponseSVMFactory: public IFeatureResponseFactory<LinearFeatureResponseSVM>
+  class LinearFeatureSVMFactory: public IFeatureResponseFactory<LinearFeatureResponseSVM>
   {
   public:
       LinearFeatureResponseSVM CreateRandom(Random& random, const IDataPointCollection& data, unsigned int* dataIndices, const unsigned int i0, const unsigned int i1, bool root_node);
@@ -126,7 +126,7 @@ namespace MicrosoftResearch { namespace Cambridge { namespace Sherwood
       ClassificationTrainingContext<F> classificationContext(trainingData.CountClasses(), featureFactory);
 
       std::auto_ptr<Forest<F, HistogramAggregator> > forest
-        = ForestTrainer<F, HistogramAggregator>::TrainForestParallel (
+        = ForestTrainer<F, HistogramAggregator>::TrainForest (
         random, TrainingParameters, classificationContext, trainingData );
 
 

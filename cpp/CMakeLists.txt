@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.2)
+cmake_minimum_required(VERSION 2.8)
 project(cpp)
 
 #Defaults
@@ -48,6 +48,9 @@ include_directories("${CMAKE_SOURCE_DIR}/demo/source")
 add_library(svmlib demo/source/svm_utils.cpp)
 add_executable(svm_test demo/source/svm_test.cpp)
 target_link_libraries(svm_test svmlib svm)
+#add_library(classification demo/source/Classification.cpp)
+#target_link_libraries(classification svmlib svm)
+
 
 #Main Stuff
 add_executable(sw ${SOURCE_FILES})

@@ -9,12 +9,15 @@ BSD licence
 
 #define Malloc(type,n) (type *)malloc((n)*sizeof(type))
 
+
 namespace esvm {
+    void print_null(const char *s) {}
 
   SVMClassifier::SVMClassifier() {
     
     // Initialize parameters (defaults taken from libsvm code)
     param_= new svm_parameter();
+
     param_->svm_type = C_SVC;
     param_->kernel_type = LINEAR; //RBF;
     param_->degree = 3;
@@ -36,6 +39,10 @@ namespace esvm {
     x_space_= NULL;
 
     D_= 0;
+
+    //svm_set_print_string_function(print_null); //Quiet Mode
+
+    //printf
   }
 
   SVMClassifier::~SVMClassifier() {
@@ -47,6 +54,12 @@ namespace esvm {
     // free model, if it exists
     if(model_ != NULL) svm_free_model_content(model_);
   }
+
+    void SVMClassifier::setDisplay(bool quiet)
+    {
+      if(quiet)
+        svm_set_print_string_function(print_null);
+    }
 
   void SVMClassifier::train(const Eigen::MatrixXf &X, const Eigen::MatrixXf &y) {
     

@@ -114,7 +114,7 @@ namespace MicrosoftResearch { namespace Cambridge { namespace Sherwood
     void LinearFeatureResponseSVM::GenerateMask(Random &random, std::vector<int>& vIndex, int dims, bool root_node)
     {
 
-        int numBloks = random.Next(1, dims);
+        int numBloks = random.Next(1, dims+1);
 
         for(int i=0;i<numBloks;i++)
         {
@@ -126,13 +126,17 @@ namespace MicrosoftResearch { namespace Cambridge { namespace Sherwood
 
     LinearFeatureResponseSVM LinearFeatureResponseSVM::CreateRandom(Random& random, const IDataPointCollection& data, unsigned int* dataIndices, const unsigned int i0, const unsigned int i1, bool root_node)
     {
+        //HACK - Modifying this
         using namespace esvm;
         LinearFeatureResponseSVM lr;
         const DataPointCollection& concreteData = (const DataPointCollection&)(data);
         //this->dimensions_ =  concreteData.Dimensions();
         lr.dimensions_ = concreteData.Dimensions();
+
+
         GenerateMask(random, lr.vIndex_, lr.dimensions_, root_node);
         int nWeights = lr.vIndex_.size();
+        //std::cout<<"[DEBUG - printing weights] : "<<nWeights<<std::endl;
 
         // Copy the samples for training this classifier
         int nSamples = i1-i0+1;
@@ -144,13 +148,19 @@ namespace MicrosoftResearch { namespace Cambridge { namespace Sherwood
         {
             //memcpy(&vFeatures[indx][0], ((DataPointCollection&)data).GetDataPoint(dataIndices[i]), lr.dimensions_*sizeof(float));
             std::vector<float> rowData = concreteData.GetDataPointRange(dataIndices[i]);
-            for(int j=0;j<nWeights;j++)
+            for(int j=0;j<nWeights;j++) {
                 vFeatures(indx, j) = rowData[lr.vIndex_[j]];
+                //std::cout<<"[DEBUG - printing features] : "<<vFeatures(indx,j)<<", ";
+            }
+            //std::cout<<std::endl;
             vLabels[indx] = (int)((DataPointCollection&)data).GetIntegerLabel(dataIndices[i]);
+            //std::cout<<"[DEBUG - printing labels] : "<<vLabels[indx]<<","<<i<<std::endl;
+
         }
 
         //SVM TRAINING PART
         SVMClassifier svm;
+        svm.setDisplay(true);
         svm.train(vFeatures, vLabels);
         Eigen::MatrixXf w;
         float b;
@@ -171,5 +181,24 @@ namespace MicrosoftResearch { namespace Cambridge { namespace Sherwood
         return lr;
     }
 
+    float LinearFeatureResponseSVM::GetResponse(const IDataPointCollection& data, unsigned int index) const
+    {
+        const DataPointCollection& concreteData = (const DataPointCollection&)(data);
+        std::vector<float> rowData = concreteData.GetDataPointRange(index);
+        float response = std::inner_product(rowData.begin(),rowData.end(), vWeights_.begin(), bias_);
+        return response;
+    }
 
-} } }
+    std::string LinearFeatureResponseSVM::ToString() const
+    {
+        std::stringstream s;
+        s << "LinearFeatureResponse()";
+
+        return s.str();
+    }
+
+
+
+
+
+        } } }

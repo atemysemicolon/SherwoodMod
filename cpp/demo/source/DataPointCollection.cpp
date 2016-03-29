@@ -5,6 +5,7 @@
 #include <map>
 #include <fstream>
 #include <sstream>
+#include <iostream>
 
 namespace MicrosoftResearch { namespace Cambridge { namespace Sherwood
 {
@@ -64,7 +65,18 @@ namespace MicrosoftResearch { namespace Cambridge { namespace Sherwood
           if (result->labelIndices_.find(elements[index])==result->labelIndices_.end())
             result->labelIndices_.insert(std::pair<std::string, int>(elements[index], result->labelIndices_.size()));
 
+
+
+          std::string lbl = elements[index];
+          //std::cout<<"[DEBUG : Printing labels while loading ] "<<lbl<<std::endl;
+          int lbl2 = result->labelIndices_[elements[index]];
+          //std::cout<<"[DEBUG : Printing converted labels while loading ] "<<lbl2<<std::endl;
           result->labels_.push_back(result->labelIndices_[elements[index++]]);
+
+
+          //int lbl = result->labelIndices_[elements[index]];
+          //int x = lbl+1;
+
         }
         else
         {

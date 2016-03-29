@@ -86,6 +86,8 @@ namespace MicrosoftResearch { namespace Cambridge { namespace Sherwood
       assert(nodeIndex < nodes.size());
       progress_[Verbose] << Tree<F, S>::GetPrettyPrintPrefix(nodeIndex) << i1 - i0 << ": ";
 
+      //std::cout<<" [ DEBUG : io, i1] "<<i0<<", "<<i1<<std::endl;
+
       // First aggregate statistics over the samples at the parent node
       parentStatistics_.Clear();
       for (DataPointIndex i = i0; i < i1; i++)
@@ -156,6 +158,7 @@ namespace MicrosoftResearch { namespace Cambridge { namespace Sherwood
       if (maxGain == 0.0)
       {
         nodes[nodeIndex].InitializeLeaf(parentStatistics_);
+        //printf("Prob(pos)=%f. ", parentStatistics_.GetProbability(1));
         progress_[Verbose] << "Terminating with zero gain." << std::endl;
         return;
       }
@@ -194,6 +197,9 @@ namespace MicrosoftResearch { namespace Cambridge { namespace Sherwood
 
       TrainNodesRecurse(nodes, nodeIndex * 2 + 1, i0, ii, recurseDepth + 1);
       TrainNodesRecurse(nodes, nodeIndex * 2 + 2, ii, i1, recurseDepth + 1);
+      //TrainNodesRecurse(nodes, 0, i0, ii, recurseDepth + 1);
+      //TrainNodesRecurse(nodes, 0, i0, ii, recurseDepth + 1);
+
     }
 
   private:

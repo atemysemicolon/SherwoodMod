@@ -11,6 +11,7 @@ BSD licence
 #include <vector>
 #include <libsvm/svm.h>
 #include <eigen3/Eigen/Eigen>
+void print_null(const char *s);
 
 using namespace std;
 namespace esvm {
@@ -34,6 +35,8 @@ namespace esvm {
       
       SVMClassifier();
       ~SVMClassifier();
+
+      void setDisplay(bool quiet);
       
       // train the svm
       void train(const Eigen::MatrixXf &X, const vector<int> &y);

@@ -19,5 +19,10 @@ namespace MicrosoftResearch { namespace Cambridge { namespace Sherwood
   {
     return LinearFeatureResponse::CreateRandom(random, data, dataIndices,i0,i1,root_node);
   }
+
+  LinearFeatureResponseSVM LinearFeatureSVMFactory::CreateRandom(Random& random, const IDataPointCollection& data, unsigned int* dataIndices, const unsigned int i0, const unsigned int i1, bool root_node)
+  {
+    return LinearFeatureResponseSVM::CreateRandom(random, data, dataIndices,i0,i1,root_node);
+  }
 } } }
 

@@ -39,6 +39,12 @@ const std::string SSCLAS_DATA_PATH = "/data/semi-supervised classification";
 const std::string REGRESSION_DATA_PATH = "/data/regression";
 const std::string DENSITY_DATA_PATH = "/data/density estimation";
 
+
+
+
+
+
+
 int main(int argc, char* argv[])
 {
   if(argc<2 || std::string(argv[1])=="/?" || toLower(argv[1])=="help")
@@ -117,19 +123,23 @@ int main(int argc, char* argv[])
       2,
       DataDescriptor::HasClassLabels ) );
 
+
+
     if (trainingData.get()==0)
       return 0; // LoadTrainingData() generates its own progress/error messages
 
     if (split.Value == "linear")
     {
-      LinearFeatureFactory linearFeatureFactory;
-      std::auto_ptr<Forest<LinearFeatureResponse, HistogramAggregator> > forest = ClassificationDemo<LinearFeatureResponse>::Train(
+      LinearFeatureSVMFactory linearFeatureFactory;
+      //LinearFeatureFactory linearFeatureFactory;
+
+      std::auto_ptr<Forest<LinearFeatureResponseSVM, HistogramAggregator> > forest = ClassificationDemo<LinearFeatureResponseSVM>::Train(
         *trainingData,
         &linearFeatureFactory,
         trainingParameters);
 
       std::auto_ptr<Bitmap<PixelBgr> > result = std::auto_ptr<Bitmap<PixelBgr> >(
-        ClassificationDemo<LinearFeatureResponse>::Visualize(*forest, *trainingData, Size(300, 300), plotDilation));
+        ClassificationDemo<LinearFeatureResponseSVM>::Visualize(*forest, *trainingData, Size(300, 300), plotDilation));
 
       std::cout << "\nSaving output image to result.dib" << std::endl;
       result->Save("result.dib");
