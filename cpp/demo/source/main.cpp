@@ -19,9 +19,12 @@
 #include "DensityEstimation.h"
 #include "SemiSupervisedClassification.h"
 #include "Regression.h"
+#include <boost/program_options.hpp>
 
 using namespace MicrosoftResearch::Cambridge::Sherwood;
+namespace po = boost::program_options;
 
+void parseArguments(po::variables_map& vm);
 
 void DisplayTextFiles(const std::string& relativePath);
 
@@ -31,39 +34,58 @@ std::auto_ptr<DataPointCollection> LoadTrainingData(
   int dimension,
   DataDescriptor::e descriptor);
 
-// Store (Linux-friendly) relative paths to training data
-const std::string CLAS_DATA_PATH = "/data/supervised classification";
-const std::string SSCLAS_DATA_PATH = "/data/semi-supervised classification";
-const std::string REGRESSION_DATA_PATH = "/data/regression";
-const std::string DENSITY_DATA_PATH = "/data/density estimation";
 
 
-
-
-
-
+//HARDCODING DEFAULTS - get from boost argparse
+int data_dimensions = 3;
+TrainingParameters trainingParameters;
+std::string dummy = "";
+std::string train_filename = "../../demo/data/sclf/sample_train.txt";
+std::string test_filename = "../../demo/data/sclf/sample_test.txt";
+float svm_c = 0.5;
+std::string mode = "Standard";
 
 int main(int argc, char* argv[])
 {
 
-
-
-
-  int data_dimensions = 3;
-
-
-  //HARDCODING DEFAULTS - get from boost argparse
-  TrainingParameters trainingParameters;
+  //Defaults
   trainingParameters.MaxDecisionLevels = 10;
   trainingParameters.NumberOfCandidateFeatures = 10;
   trainingParameters.NumberOfCandidateThresholdsPerFeature = 10;
   trainingParameters.NumberOfTrees = 10;
   trainingParameters.Verbose = true;
 
-  std::string dummy = "";
 
 
-  std::string train_filename = "../../demo/data/sclf/sample_train.txt";
+  po::options_description desc("Allowed Options");
+  desc.add_options()
+          ("help,h", "produce help message")
+          ("data_train",po::value<std::string>()->default_value(train_filename), "Training Data file (CSV TAB DELIMITED)")
+          ("data_test",po::value<std::string>()->default_value(test_filename), "Testing Data file")
+          ("dims",po::value<int>()->default_value(data_dimensions), "Dimensionality of data (Nr. of attributes)")
+          ("trees",po::value<int>()->default_value(10), "Number of Trees in the forest")
+          ("dlevels",po::value<int>()->default_value(10), "Number of Decision Levels")
+          ("candidate_feats",po::value<int>()->default_value(10), "Number of times to randomly choose a candidate feature")
+          ("candidate_thresh",po::value<int>()->default_value(10), "Number of times to sample the threshold")
+          ("svm_c",po::value<float>()->default_value(0.5), "C Parameter of the SVM")
+          ("verbose",po::value<bool>()->default_value(true), "Display output")
+          ("mode",po::value<std::string>()->default_value("Standard"), "Random Forest operating mode")
+          ;
+
+  po::variables_map vm;
+  po::store(po::parse_command_line(argc, argv, desc), vm);
+  po::notify(vm);
+  if ( (vm.count("help") || (argc<2))) {
+    std::cout << desc << "\n";
+    return 1;
+  }
+
+  parseArguments(vm);
+
+
+
+
+
   std::auto_ptr<DataPointCollection> trainingData
           = std::auto_ptr<DataPointCollection> ( LoadTrainingData(train_filename,
                                                                   dummy,
@@ -71,7 +93,7 @@ int main(int argc, char* argv[])
                                                                   DataDescriptor::HasClassLabels ) );
 
 
-  std::string test_filename = "../../demo/data/sclf/sample_test.txt";
+
   std::auto_ptr<DataPointCollection> testdata
           = std::auto_ptr<DataPointCollection> ( LoadTrainingData(test_filename,
                                                                   dummy,
@@ -110,6 +132,102 @@ int main(int argc, char* argv[])
 
   return 0;
 }
+
+void parseArguments(po::variables_map& vm)
+{
+
+  std::cout<<"[PARSING ARGUMENTS] "<<std::endl;
+
+  //Data_Train
+  if (vm.count("Training Data"))
+    std::cout << "1. [data_train] \t Training data source was set to ";
+  else
+    std::cout << "1. [data_train] \t Training Data source was not set. Using Default...";
+  train_filename = vm["data_train"].as<std::string>();
+  std::cout<<"<"<<train_filename<<">"<<std::endl;
+
+
+  std::cout<<"2. [Testing Data]";
+  if (vm.count("data_test"))
+    std::cout << "\t Testing data source was set to ";
+  else
+    std::cout << "\t Testing Data source was not set. Using Default...";
+  test_filename = vm["data_test"].as<std::string>();
+  std::cout<<"<"<<test_filename<<">"<<std::endl;
+
+
+  std::cout<<"3. [Dimensionality of the data]";
+  if (vm.count("dims"))
+    std::cout << "\t Number of Dimensions of data is set to ";
+  else
+    std::cout << "\t Number of Dimensions of data was not set. Using Default...";
+  data_dimensions = vm["dims"].as<int>();
+  std::cout<<"<"<<data_dimensions<<">"<<std::endl;
+
+
+  std::cout<<"4. [Number of Trees]";
+  if (vm.count("trees"))
+    std::cout << "\t Number of Trees is set to ";
+  else
+    std::cout << "\t Number of Trees was not set. Using Default...";
+  trainingParameters.NumberOfTrees = vm["trees"].as<int>();
+  std::cout<<"<"<<trainingParameters.NumberOfTrees<<">"<<std::endl;
+
+  std::cout<<"5. [Decision Levels]";
+  if (vm.count("dlevels"))
+    std::cout << "\t Number of Decision levels is set to ";
+  else
+    std::cout << "\t Number of Decision levels not set. Using Default...";
+  trainingParameters.MaxDecisionLevels = vm["dlevels"].as<int>();
+  std::cout<<"<"<<trainingParameters.MaxDecisionLevels<<">"<<std::endl;
+
+  std::cout<<"6. [Candidate Features]";
+  if (vm.count("candidate_feats"))
+    std::cout << "\t Number of Canidate Features is set to ";
+  else
+    std::cout << "\t Number of Canidate Features was not set. Using Default...";
+  trainingParameters.NumberOfCandidateFeatures = vm["candidate_feats"].as<int>();
+  std::cout<<"<"<<trainingParameters.NumberOfCandidateFeatures<<">"<<std::endl;
+
+  std::cout<<"7. [Candidate Thresholds]";
+  if (vm.count("candidate_thresh"))
+    std::cout << "\t Number of Canidate Thresholds is set to ";
+  else
+    std::cout << "\t Number of Canidate Thresholds was not set. Using Default...";
+  trainingParameters.NumberOfCandidateThresholdsPerFeature = vm["candidate_thresh"].as<int>();
+  std::cout<<"<"<<trainingParameters.NumberOfCandidateThresholdsPerFeature<<">"<<std::endl;
+
+  std::cout<<"8. [SVM_C]";
+  if (vm.count("svm_c"))
+    std::cout << "\t Number of Canidate Features is set to ";
+  else
+    std::cout << "\t Number of Canidate Features was not set. Using Default...";
+  svm_c = vm["svm_c"].as<float>();
+  std::cout<<"<"<<svm_c<<">"<<std::endl;
+
+
+  std::cout<<"9. [Verbosity]";
+  if (vm.count("verbose"))
+    std::cout << "\t Verbosity is set to ";
+  else
+    std::cout << "\t Verbosity was not set. Using Default...";
+  trainingParameters.Verbose = vm["verbose"].as<bool>();
+  std::cout<<"<"<<trainingParameters.Verbose<<">"<<std::endl;
+
+
+  std::cout<<"10. [Operation Mode ]";
+  if (vm.count("mode"))
+    std::cout << "\t Mode is set to ";
+  else
+    std::cout << "\t Mode was not set. Using Default...";
+  mode = vm["mode"].as<std::string>();
+  std::cout<<"<"<<mode<<">"<<std::endl;
+
+  std::cout<<"[FINISHED PARSING]"<<std::endl<<std::endl;
+
+
+}
+
 
 std::auto_ptr<DataPointCollection> LoadTrainingData(
   const std::string& filename,
