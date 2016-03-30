@@ -73,7 +73,7 @@ int main(int argc, char* argv[])
           ("svm_c",po::value<float>()->default_value(0.5), "C Parameter of the SVM")
           ("verbose",po::value<bool>()->default_value(true), "Display output")
           ("mode",po::value<std::string>()->default_value("Standard"), "Random Forest operating mode")
-          ("op_mode",po::value<std::string>()->default_value("train"), "train | test | tr-te")
+          ("op_mode",po::value<std::string>()->default_value("tr-te"), "train | test | tr-te")
           ;
 
   po::variables_map vm;
@@ -243,15 +243,21 @@ void parseArguments(po::variables_map& vm)
   else
     std::cout << "\t Operating  Mode was not set. Using Default...";
   std::string op_mode = vm["op_mode"].as<std::string>();
-  std::cout<<"<"<<op_mode<<">"<<std::endl;
-  if(op_mode.compare("train")==0)
+
+  if(op_mode.compare("train")==0) {
     train_flag = true;
-  else if(op_mode.compare("test")==0)
+    std::cout<<"<TRAIN>"<<std::endl;
+  }
+
+  else if(op_mode.compare("test")==0) {
     test_flag = true;
-  else if(op_mode.compare("tr-test")==0)
+    std::cout << "<TEST>" << std::endl;
+  }
+  else if(op_mode.compare("tr-te")==0)
   {
     train_flag=true;
     test_flag = true;
+    std::cout<<"<TRAIN-TEST>"<<std::endl;
   }
   else
     std::cout<<"Couldn't parse train-test mode. Doing both"<<std::endl;
