@@ -1,5 +1,9 @@
 ﻿***FORK OF MICROSOFT'S SHERWOOD LIBRARY***
 **Don't know the License format. Please refer to the original for rights**
+
+EXTRA DEPENDENCY : libsvm (as a library where c++ should automatically look)
+
+
 *http://research.microsoft.com/en-us/downloads/52d5b9c3-a638-42a1-94a5-d549e2251728/*
 
 
