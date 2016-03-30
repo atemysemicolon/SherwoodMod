@@ -14,7 +14,7 @@
 
 namespace MicrosoftResearch { namespace Cambridge { namespace Sherwood
 {
-  AxisAlignedFeatureResponse AxisAlignedFeatureResponse ::CreateRandom(Random& random, const IDataPointCollection& data, unsigned int* dataIndices, const unsigned int i0, const unsigned int i1, bool root_node)
+  AxisAlignedFeatureResponse AxisAlignedFeatureResponse ::CreateRandom(Random& random, const IDataPointCollection& data, unsigned int* dataIndices, const unsigned int i0, const unsigned int i1, float svm_c, bool root_node)
   {
     return AxisAlignedFeatureResponse(random.Next(0, 2));
   }
@@ -34,7 +34,7 @@ namespace MicrosoftResearch { namespace Cambridge { namespace Sherwood
   }
 
   /// <returns>A new LinearFeatureResponse2d instance.</returns>
-  LinearFeatureResponse2d LinearFeatureResponse2d::CreateRandom(Random& random, const IDataPointCollection& data, unsigned int* dataIndices, const unsigned int i0, const unsigned int i1, bool root_node)
+  LinearFeatureResponse2d LinearFeatureResponse2d::CreateRandom(Random& random, const IDataPointCollection& data, unsigned int* dataIndices, const unsigned int i0, const unsigned int i1, float svm_c, bool root_node)
   {
     double dx = 2.0 * random.NextDouble() - 1.0;
     double dy = 2.0 * random.NextDouble() - 1.0;
@@ -60,7 +60,7 @@ namespace MicrosoftResearch { namespace Cambridge { namespace Sherwood
 
 
   /// <returns>A new LinearFeatureResponse instance.</returns>
-  LinearFeatureResponse LinearFeatureResponse::CreateRandom(Random& random, const IDataPointCollection& data, unsigned int* dataIndices, const unsigned int i0, const unsigned int i1, bool root_node=false)
+  LinearFeatureResponse LinearFeatureResponse::CreateRandom(Random& random, const IDataPointCollection& data, unsigned int* dataIndices, const unsigned int i0, const unsigned int i1,float svm_c, bool root_node=false)
   {
     LinearFeatureResponse lr;
     //lr.dimensions_ = data.GetDimension();
@@ -124,7 +124,7 @@ namespace MicrosoftResearch { namespace Cambridge { namespace Sherwood
 
     }
 
-    LinearFeatureResponseSVM LinearFeatureResponseSVM::CreateRandom(Random& random, const IDataPointCollection& data, unsigned int* dataIndices, const unsigned int i0, const unsigned int i1, bool root_node)
+    LinearFeatureResponseSVM LinearFeatureResponseSVM::CreateRandom(Random& random, const IDataPointCollection& data, unsigned int* dataIndices, const unsigned int i0, const unsigned int i1,float svm_c, bool root_node)
     {
         //HACK - Modifying this
         using namespace esvm;
@@ -161,6 +161,7 @@ namespace MicrosoftResearch { namespace Cambridge { namespace Sherwood
         //SVM TRAINING PART
         SVMClassifier svm;
         svm.setDisplay(true);
+        svm.setC(svm_c);
         svm.train(vFeatures, vLabels);
         Eigen::MatrixXf w;
         float b;

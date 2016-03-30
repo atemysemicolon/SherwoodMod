@@ -31,5 +31,6 @@ namespace MicrosoftResearch { namespace Cambridge { namespace Sherwood
     unsigned int NumberOfCandidateThresholdsPerFeature;
     int MaxDecisionLevels;
     bool Verbose;
+    float svm_c;
   };
 } } }

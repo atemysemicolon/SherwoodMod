@@ -42,7 +42,7 @@ TrainingParameters trainingParameters;
 std::string dummy = "";
 std::string train_filename = "../../demo/data/sclf/sample_train.txt";
 std::string test_filename = "../../demo/data/sclf/sample_test.txt";
-float svm_c = 0.5;
+//float svm_c = 0.5;
 std::string mode = "Standard";
 
 int main(int argc, char* argv[])
@@ -202,8 +202,8 @@ void parseArguments(po::variables_map& vm)
     std::cout << "\t Number of Canidate Features is set to ";
   else
     std::cout << "\t Number of Canidate Features was not set. Using Default...";
-  svm_c = vm["svm_c"].as<float>();
-  std::cout<<"<"<<svm_c<<">"<<std::endl;
+  trainingParameters.svm_c = vm["svm_c"].as<float>();
+  std::cout<<"<"<<trainingParameters.svm_c<<">"<<std::endl;
 
 
   std::cout<<"9. [Verbosity]";
