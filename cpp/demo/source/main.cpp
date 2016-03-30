@@ -44,7 +44,9 @@ std::string train_filename = "../../demo/data/sclf/sample_train.txt";
 std::string test_filename = "../../demo/data/sclf/sample_test.txt";
 //float svm_c = 0.5;
 std::string mode = "Standard";
-
+bool train_flag = true;
+bool test_flag = true;
+std::string forest_loc ="forest.out";
 int main(int argc, char* argv[])
 {
 
@@ -62,6 +64,7 @@ int main(int argc, char* argv[])
           ("help,h", "produce help message")
           ("data_train",po::value<std::string>()->default_value(train_filename), "Training Data file (CSV TAB DELIMITED)")
           ("data_test",po::value<std::string>()->default_value(test_filename), "Testing Data file")
+          ("forest_loc",po::value<std::string>()->default_value(forest_loc), "Where to dump  or load the trained forest")
           ("dims",po::value<int>()->default_value(data_dimensions), "Dimensionality of data (Nr. of attributes)")
           ("trees",po::value<int>()->default_value(10), "Number of Trees in the forest")
           ("dlevels",po::value<int>()->default_value(10), "Number of Decision Levels")
@@ -70,6 +73,7 @@ int main(int argc, char* argv[])
           ("svm_c",po::value<float>()->default_value(0.5), "C Parameter of the SVM")
           ("verbose",po::value<bool>()->default_value(true), "Display output")
           ("mode",po::value<std::string>()->default_value("Standard"), "Random Forest operating mode")
+          ("op_mode",po::value<std::string>()->default_value("train"), "train | test | tr-te")
           ;
 
   po::variables_map vm;
@@ -105,32 +109,35 @@ int main(int argc, char* argv[])
   if (trainingData.get()==0)
     return 0; // LoadTrainingData() generates its own progress/error messages
 
-
-  LinearFeatureSVMFactory linearFeatureFactory;
-
-  std::auto_ptr<Forest<LinearFeatureResponseSVM, HistogramAggregator> > forest
+  if(train_flag)
+  {
+    LinearFeatureSVMFactory linearFeatureFactory;
+    std::auto_ptr<Forest<LinearFeatureResponseSVM, HistogramAggregator> > forest
           = ClassificationDemo<LinearFeatureResponseSVM>::Train(*trainingData,
                                                                 &linearFeatureFactory,
                                                                 trainingParameters);
-
-  forest->Serialize("out.forest");
-  std::auto_ptr<Forest<LinearFeatureResponseSVM, HistogramAggregator> > trained_forest
-          = Forest<LinearFeatureResponseSVM, HistogramAggregator>::Deserialize("out.forest");
-
-
-  std::vector<HistogramAggregator> distbns;
-  ClassificationDemo<LinearFeatureResponseSVM>::Test(*trained_forest.get(),
-                                                     *testdata.get(),
-                                                     distbns);
-
-  forest.release();
-  trained_forest.release();
-  distbns.clear();
+    forest->Serialize(forest_loc);
+    forest.release();
+  }
 
 
+  if(test_flag)
+  {
+    std::auto_ptr<Forest<LinearFeatureResponseSVM, HistogramAggregator> > trained_forest
+            = Forest<LinearFeatureResponseSVM, HistogramAggregator>::Deserialize(forest_loc);
+
+
+    std::vector<HistogramAggregator> distbns;
+    ClassificationDemo<LinearFeatureResponseSVM>::Test(*trained_forest.get(),
+                                                       *testdata.get(),
+                                                       distbns);
+    trained_forest.release();
+    distbns.clear();
+  }
 
 
   return 0;
+
 }
 
 void parseArguments(po::variables_map& vm)
@@ -155,8 +162,15 @@ void parseArguments(po::variables_map& vm)
   test_filename = vm["data_test"].as<std::string>();
   std::cout<<"<"<<test_filename<<">"<<std::endl;
 
+  std::cout<<"3. [Forest Location]";
+  if (vm.count("forest_loc"))
+    std::cout << "\t Forest Location source was set to ";
+  else
+    std::cout << "\t Forest Location source was not set. Using Default...";
+  forest_loc = vm["forest_loc"].as<std::string>();
+  std::cout<<"<"<<forest_loc<<">"<<std::endl;
 
-  std::cout<<"3. [Dimensionality of the data]";
+  std::cout<<"4. [Dimensionality of the data]";
   if (vm.count("dims"))
     std::cout << "\t Number of Dimensions of data is set to ";
   else
@@ -165,7 +179,7 @@ void parseArguments(po::variables_map& vm)
   std::cout<<"<"<<data_dimensions<<">"<<std::endl;
 
 
-  std::cout<<"4. [Number of Trees]";
+  std::cout<<"5. [Number of Trees]";
   if (vm.count("trees"))
     std::cout << "\t Number of Trees is set to ";
   else
@@ -173,7 +187,7 @@ void parseArguments(po::variables_map& vm)
   trainingParameters.NumberOfTrees = vm["trees"].as<int>();
   std::cout<<"<"<<trainingParameters.NumberOfTrees<<">"<<std::endl;
 
-  std::cout<<"5. [Decision Levels]";
+  std::cout<<"6. [Decision Levels]";
   if (vm.count("dlevels"))
     std::cout << "\t Number of Decision levels is set to ";
   else
@@ -181,7 +195,7 @@ void parseArguments(po::variables_map& vm)
   trainingParameters.MaxDecisionLevels = vm["dlevels"].as<int>();
   std::cout<<"<"<<trainingParameters.MaxDecisionLevels<<">"<<std::endl;
 
-  std::cout<<"6. [Candidate Features]";
+  std::cout<<"7. [Candidate Features]";
   if (vm.count("candidate_feats"))
     std::cout << "\t Number of Canidate Features is set to ";
   else
@@ -189,7 +203,7 @@ void parseArguments(po::variables_map& vm)
   trainingParameters.NumberOfCandidateFeatures = vm["candidate_feats"].as<int>();
   std::cout<<"<"<<trainingParameters.NumberOfCandidateFeatures<<">"<<std::endl;
 
-  std::cout<<"7. [Candidate Thresholds]";
+  std::cout<<"8. [Candidate Thresholds]";
   if (vm.count("candidate_thresh"))
     std::cout << "\t Number of Canidate Thresholds is set to ";
   else
@@ -197,7 +211,7 @@ void parseArguments(po::variables_map& vm)
   trainingParameters.NumberOfCandidateThresholdsPerFeature = vm["candidate_thresh"].as<int>();
   std::cout<<"<"<<trainingParameters.NumberOfCandidateThresholdsPerFeature<<">"<<std::endl;
 
-  std::cout<<"8. [SVM_C]";
+  std::cout<<"9. [SVM_C]";
   if (vm.count("svm_c"))
     std::cout << "\t Number of Canidate Features is set to ";
   else
@@ -206,7 +220,7 @@ void parseArguments(po::variables_map& vm)
   std::cout<<"<"<<trainingParameters.svm_c<<">"<<std::endl;
 
 
-  std::cout<<"9. [Verbosity]";
+  std::cout<<"10. [Verbosity]";
   if (vm.count("verbose"))
     std::cout << "\t Verbosity is set to ";
   else
@@ -215,13 +229,32 @@ void parseArguments(po::variables_map& vm)
   std::cout<<"<"<<trainingParameters.Verbose<<">"<<std::endl;
 
 
-  std::cout<<"10. [Operation Mode ]";
+  std::cout<<"11. [Computing Mode ]";
   if (vm.count("mode"))
     std::cout << "\t Mode is set to ";
   else
     std::cout << "\t Mode was not set. Using Default...";
   mode = vm["mode"].as<std::string>();
   std::cout<<"<"<<mode<<">"<<std::endl;
+
+  std::cout<<"12. [Operating Mode ]";
+  if (vm.count("op_mode"))
+    std::cout << "\t Operating  Mode is set to ";
+  else
+    std::cout << "\t Operating  Mode was not set. Using Default...";
+  std::string op_mode = vm["op_mode"].as<std::string>();
+  std::cout<<"<"<<op_mode<<">"<<std::endl;
+  if(op_mode.compare("train")==0)
+    train_flag = true;
+  else if(op_mode.compare("test")==0)
+    test_flag = true;
+  else if(op_mode.compare("tr-test")==0)
+  {
+    train_flag=true;
+    test_flag = true;
+  }
+  else
+    std::cout<<"Couldn't parse train-test mode. Doing both"<<std::endl;
 
   std::cout<<"[FINISHED PARSING]"<<std::endl<<std::endl;
 
