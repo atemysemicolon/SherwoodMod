@@ -18,11 +18,11 @@ namespace MicrosoftResearch { namespace Cambridge { namespace Sherwood
     #define HYPER_MACHINE_DIM 64
     #define HYPER_LBP_DIM 59
     #define HYPER_LOCATION_DIM 2
-    #define HYPER_MACHINE_PAIRS (HYPER_MACHINE_DIM*FISHER_CLUSTERS)
-    #define HYPER_LBP_PAIRS (HYPER_LBP_DIM*FISHER_CLUSTERS)
-    #define HYPERFISHER_MACHINE_DIM (2*HYPER_MACHINE_PAIRS)
-    #define HYPERFISHER_LBP_DIM (2*HYPER_LBP_PAIRS)
-    #define HYPER_FISHER_DIM (HYPER_MACHINE_DIM+HYPER_LBP_DIM+HYPER_LOCATION_DIM)
+    #define HYPER_MACHINE_PAIRS (HYPER_MACHINE_DIM*FISHER_CLUSTERS) //64*16 ->1024
+    #define HYPER_LBP_PAIRS (HYPER_LBP_DIM*FISHER_CLUSTERS) //59*64 -> 3776
+    #define HYPERFISHER_MACHINE_DIM (2*HYPER_MACHINE_PAIRS) //2*1024  --> 2048
+    #define HYPERFISHER_LBP_DIM (2*HYPER_LBP_PAIRS) //2*3776 -->
+    #define HYPER_FISHER_DIM (HYPER_MACHINE_DIM+HYPER_LBP_DIM+HYPER_LOCATION_DIM) //2048 + 2*3776
     #define BLOK_SIZE_SUPERPIXEL 2
 
   /// <summary>
@@ -179,6 +179,8 @@ namespace MicrosoftResearch { namespace Cambridge { namespace Sherwood
         static LinearFeatureResponseSVM CreateRandom(Random& random, const IDataPointCollection& data, unsigned int* dataIndices, const unsigned int i0, const unsigned int i1, float svm_c, bool root_node=false);
         static void GenerateMask(Random& random, std::vector<int>& vIndex, int dims , bool root_node);
         static void GenerateMaskFisher(Random& random, std::vector<int>& vIndex, int dims , bool root_node);
+        static void GenerateMaskLBP(Random& random, std::vector<int>& vIndex, int dims , bool root_node);
+
 
         float GetResponse(const IDataPointCollection &data, unsigned int index) const;
         std::string ToString()  const;

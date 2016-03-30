@@ -7,8 +7,8 @@
 
 #include "Sherwood.h"
 
-#include <boost/python.hpp>
-#include<boost/python.hpp>
+//#include <boost/python.hpp>
+//#include<boost/python.hpp>
 
 namespace MicrosoftResearch { namespace Cambridge { namespace Sherwood
 {

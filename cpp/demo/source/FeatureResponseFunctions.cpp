@@ -124,15 +124,35 @@ namespace MicrosoftResearch { namespace Cambridge { namespace Sherwood
 
     }
 
+    void LinearFeatureResponseSVM::GenerateMaskLBP(Random &random, std::vector<int>& vIndex, int dims, bool root_node)
+    {
+        int maxBloks = 12;
+        int feature_length = 59;
+
+        int numBloks = random.Next(1,maxBloks+1);
+
+
+        for (int i = 0; i< numBloks;i ++ )
+        {
+            int idx = random.Next(0,maxBloks);
+            int feature_start = idx * feature_length;
+            for(int j = feature_start; j<feature_start+feature_length;j++)
+            {
+                vIndex.push_back(j);
+            }
+        }
+
+    }
+
     void LinearFeatureResponseSVM::GenerateMaskFisher(Random &random, std::vector<int>& vIndex, int dims, bool root_node)
     {
 
-        bool machine_lbp_choice = (random.NextDouble()>0.5);
+        bool machine_choice = (random.NextDouble()>0.5);
         bool loc_choice = random.NextDouble()>0.5;
         int numBloks = 0;
         int maxBloks = 1;
 
-        if(machine_lbp_choice)
+        if(machine_choice)
         {
             numBloks = random.Next(1,HYPER_MACHINE_PAIRS);
             maxBloks = HYPER_MACHINE_PAIRS;
@@ -143,86 +163,28 @@ namespace MicrosoftResearch { namespace Cambridge { namespace Sherwood
             maxBloks = HYPER_LBP_PAIRS;
         }
 
+        bool lbp_choice = !machine_choice;
 
+        for(int i=0;i<numBloks;i++)
+        {
+            int indx = random.Next(0,maxBloks);
 
-        /*
+            //Selecting mean
+            vIndex.push_back( (HYPERFISHER_MACHINE_DIM*lbp_choice) + indx );
 
-            #define WITH_FISHER true
-        #define FISHER_CLUSTERS 16
-        #define HYPER_MACHINE_DIM 64
-        #define HYPER_LBP_DIM 59
-        #define HYPER_LOCATION_DIM 2
-        #define HYPER_MACHINE_PAIRS (HYPER_MACHINE_DIM*FISHER_CLUSTERS)
-        #define HYPER_LBP_PAIRS (HYPER_LBP_DIM*FISHER_CLUSTERS)
-        #define HYPERFISHER_MACHINE_DIM (2*HYPER_MACHINE_PAIRS)
-        #define HYPERFISHER_LBP_DIM (2*HYPER_LBP_PAIRS)
-        #define HYPER_FISHER_DIM (HYPER_MACHINE_DIM+HYPER_LBP_DIM+HYPER_LOCATION_DIM)
+            //Selecting std_dev
+            vIndex.push_back( (HYPERFISHER_MACHINE_DIM*lbp_choice) + (indx + (HYPER_MACHINE_PAIRS*machine_choice + HYPER_LBP_PAIRS*lbp_choice)) );
+        }
 
-            //Decides either LBP or Machine at each stage
-
-            //Randomly choose machine(true) or lbp(false)
-            bool machine_lbp_choice = (random.NextDouble()>0.5);
-
-            //Decide whether to include location
-            bool loc_choice = random.NextDouble()>0.5;
-
-            //Choosing number of fisher pairs to take in
-            int numBloks=0;
-            int maxBloks =1;
-            if(machine_lbp_choice)
-            {
-                numBloks = random.Next(1, HYPER_MACHINE_PAIRS);
-                maxBloks = HYPER_MACHINE_PAIRS;
-            }
-            else
-            {
-                numBloks = random.Next(1,HYPER_LBP_PAIRS);
-                maxBloks = HYPER_LBP_PAIRS;
-            }
-
-
-            bool lbp_choice = !(machine_lbp_choice); //Easy choosing arithmetic
-            int index=0;
-            //Iterate over the entire FV part
-            for (int i=0; i<numBloks; i++)
-            {
-
-                //Choosing a pair-index randomly
-                int indx = random.Next(0, maxBloks);//*numBloks;
-
-                //Selecting MEAN
-                //First Term = LBP offset
-                vIndex[index++] = (HYPERFISHER_MACHINE_DIM*lbp_choice) + indx;
-
-                //Selecting STD_DEV
-                //First term is the LBP offset
-                //Second term is the std_dev offset
-                //2nd term automatically scales to LBP or Machine when required
-                vIndex[index++] = (HYPERFISHER_MACHINE_DIM*lbp_choice) + (indx + (HYPER_MACHINE_PAIRS*machine_lbp_choice + HYPER_LBP_PAIRS*lbp_choice));
-
-
-                //if(vIndex[index]<=0 || vIndex[index]>=FEATURE_LENGTH_SUPERPIXEL)
-                //continue;
-            }
-
-
-
-            if(loc_choice)
-            {
-                    vIndex[index++] = HYPERFISHER_MACHINE_DIM+HYPER_LBP_DIM; //normalized x
-                    vIndex[index++] = FEATURE_LENGTH_HYPERCOLUMN*BLOK_SIZE_SUPERPIXEL+FEATURE_LENGTH_LBP+1; //normalized y
-
-            }
-            nIndex = index;
-            // May be commented to speed up
-            for (index; index<numBloks; index++)
-                vIndex[index] = -1;
-
-                //FISHERS!
-
-         */
+        if(loc_choice)
+        {
+            vIndex.push_back(HYPERFISHER_MACHINE_DIM+HYPER_LBP_DIM);
+            vIndex.push_back(HYPERFISHER_MACHINE_DIM+HYPER_LBP_DIM+1);
+        }
 
     }
+
+
 
 
 
@@ -236,7 +198,7 @@ namespace MicrosoftResearch { namespace Cambridge { namespace Sherwood
         lr.dimensions_ = concreteData.Dimensions();
 
 
-        GenerateMask(random, lr.vIndex_, lr.dimensions_, root_node);
+        GenerateMaskLBP(random, lr.vIndex_, lr.dimensions_, root_node); //CHANGE THIS DEPENDING ON OPERATION
         int nWeights = lr.vIndex_.size();
         //std::cout<<"[DEBUG - printing weights] : "<<nWeights<<std::endl;
 

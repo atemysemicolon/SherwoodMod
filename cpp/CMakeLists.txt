@@ -15,10 +15,13 @@ if (OPENMP_FOUND)
 endif()
 
 #Boost-Py
-FIND_PACKAGE(PythonInterp)
-FIND_PACKAGE(PythonLibs)
-FIND_PACKAGE(Boost COMPONENTS python program_options)
-INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS} ${PYTHON_INCLUDE_DIRS})
+#FIND_PACKAGE(PythonInterp)
+#FIND_PACKAGE(PythonLibs)
+#INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_DIRS})
+#FIND_PACKAGE(Boost COMPONENTS python program_options)
+FIND_PACKAGE(Boost COMPONENTS program_options)
+INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS} )
+
 #LINK_LIBRARIES(${Boost_LIBRARIES} ${PYTHON_LIBRARIES}) # Deprecated but so convenient!
 
 
@@ -54,4 +57,5 @@ target_link_libraries(svm_test svmlib svm)
 
 #Main Stuff
 add_executable(sw ${SOURCE_FILES})
-target_link_libraries(sw ${Boost_LIBRARIES} ${PYTHON_LIBRARIES} svmlib svm)
+#target_link_libraries(sw ${Boost_LIBRARIES} ${PYTHON_LIBRARIES} svmlib svm)
+target_link_libraries(sw ${Boost_LIBRARIES} svmlib svm)
