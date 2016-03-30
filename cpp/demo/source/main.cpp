@@ -108,7 +108,7 @@ int main(int argc, char* argv[])
       return 0;
 
     TrainingParameters trainingParameters;
-    trainingParameters.MaxDecisionLevels = D.Value-1;
+    trainingParameters.MaxDecisionLevels = D.Value;
     trainingParameters.NumberOfCandidateFeatures = F.Value;
     trainingParameters.NumberOfCandidateThresholdsPerFeature = L.Value;
     trainingParameters.NumberOfTrees = T.Value;
