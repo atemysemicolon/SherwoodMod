@@ -18,7 +18,7 @@ namespace MicrosoftResearch { namespace Cambridge { namespace Sherwood
 {
   struct HistogramAggregator
   {
-  private:
+  public:
     unsigned short bins_[4];
     int binCount_;
 

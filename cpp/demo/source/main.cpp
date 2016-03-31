@@ -28,6 +28,8 @@ void parseArguments(po::variables_map& vm);
 
 void DisplayTextFiles(const std::string& relativePath);
 
+void writePredData(std::string filename,std::vector<HistogramAggregator> &distbns);
+
 std::auto_ptr<DataPointCollection> LoadTrainingData(
   const std::string& filename,
   const std::string& alternativePath,
@@ -42,6 +44,7 @@ TrainingParameters trainingParameters;
 std::string dummy = "";
 std::string train_filename = "../../demo/data/sclf/sample_train.txt";
 std::string test_filename = "../../demo/data/sclf/sample_test.txt";
+std::string predict_filename = "../../demo/data/sclf/sample_predict.txt";
 //float svm_c = 0.5;
 std::string mode = "Standard";
 bool train_flag = true;
@@ -64,6 +67,7 @@ int main(int argc, char* argv[])
           ("help,h", "produce help message")
           ("data_train",po::value<std::string>()->default_value(train_filename), "Training Data file (CSV TAB DELIMITED)")
           ("data_test",po::value<std::string>()->default_value(test_filename), "Testing Data file")
+          ("data_predict",po::value<std::string>()->default_value(predict_filename), "Predicted output file - Will be (over)written")
           ("forest_loc",po::value<std::string>()->default_value(forest_loc), "Where to dump  or load the trained forest")
           ("dims",po::value<int>()->default_value(data_dimensions), "Dimensionality of data (Nr. of attributes)")
           ("trees",po::value<int>()->default_value(50), "Number of Trees in the forest")
@@ -135,7 +139,10 @@ int main(int argc, char* argv[])
     std::vector<HistogramAggregator> distbns;
     ClassificationDemo<LinearFeatureResponseSVM>::Test(*trained_forest.get(),
                                                        *testdata.get(),
-                                                       distbns);
+                                                       distbns,predict_filename);
+
+      std::cout<<"[WRITING PREDICTED DATA]"<<std::endl;
+      writePredData (predict_filename, distbns);
     trained_forest.release();
     distbns.clear();
   }
@@ -144,6 +151,29 @@ int main(int argc, char* argv[])
   return 0;
 
 }
+
+
+
+void writePredData(std::string filename,std::vector<HistogramAggregator> &distbns)
+{
+
+    std::ofstream FILE(filename);
+    std::ostream_iterator<float> output_iterator(FILE,"\t");
+    for(int i=0;i<distbns.size ();i++)
+    {
+        std::vector<float> bla;
+        bla.push_back (distbns[i].bins_[0]/(float)distbns[i].sampleCount_);
+        bla.push_back (distbns[i].bins_[1]/(float)distbns[i].sampleCount_);
+        std::copy(bla.begin(), bla.end(), output_iterator);
+        FILE<<"\n";
+    }
+    //std::copy(output.begin(), output.end(), output_iterator);
+    FILE.close();
+    std::cout<<"[Done - WRITING PREDICTED DATA]"<<std::endl;
+
+
+}
+
 
 void parseArguments(po::variables_map& vm)
 {
@@ -168,7 +198,15 @@ void parseArguments(po::variables_map& vm)
   test_filename = vm["data_test"].as<std::string>();
   std::cout<<"<"<<test_filename<<">"<<std::endl;
 
-  std::cout<<"3. [Forest Location]";
+    std::cout << "3. [Predicted output]";
+    if (vm.count ("data_predict"))
+        std::cout << "\t Predicted output filename was set to ";
+    else
+        std::cout << "\t Predicted output filename  was not set. Using Default...";
+    predict_filename = vm["data_predict"].as<std::string> ();
+    std::cout << "<" << predict_filename << ">" << std::endl;
+
+  std::cout<<"4. [Forest Location]";
   if (vm.count("forest_loc"))
     std::cout << "\t Forest Location source was set to ";
   else
@@ -176,7 +214,7 @@ void parseArguments(po::variables_map& vm)
   forest_loc = vm["forest_loc"].as<std::string>();
   std::cout<<"<"<<forest_loc<<">"<<std::endl;
 
-  std::cout<<"4. [Dimensionality of the data]";
+  std::cout<<"5. [Dimensionality of the data]";
   if (vm.count("dims"))
     std::cout << "\t Number of Dimensions of data is set to ";
   else
@@ -185,7 +223,7 @@ void parseArguments(po::variables_map& vm)
   std::cout<<"<"<<data_dimensions<<">"<<std::endl;
 
 
-  std::cout<<"5. [Number of Trees]";
+  std::cout<<"6. [Number of Trees]";
   if (vm.count("trees"))
     std::cout << "\t Number of Trees is set to ";
   else
@@ -193,7 +231,7 @@ void parseArguments(po::variables_map& vm)
   trainingParameters.NumberOfTrees = vm["trees"].as<int>();
   std::cout<<"<"<<trainingParameters.NumberOfTrees<<">"<<std::endl;
 
-  std::cout<<"6. [Decision Levels]";
+  std::cout<<"7. [Decision Levels]";
   if (vm.count("dlevels"))
     std::cout << "\t Number of Decision levels is set to ";
   else
@@ -201,7 +239,7 @@ void parseArguments(po::variables_map& vm)
   trainingParameters.MaxDecisionLevels = vm["dlevels"].as<int>();
   std::cout<<"<"<<trainingParameters.MaxDecisionLevels<<">"<<std::endl;
 
-  std::cout<<"7. [Candidate Features]";
+  std::cout<<"8. [Candidate Features]";
   if (vm.count("candidate_feats"))
     std::cout << "\t Number of Canidate Features is set to ";
   else
@@ -209,7 +247,7 @@ void parseArguments(po::variables_map& vm)
   trainingParameters.NumberOfCandidateFeatures = vm["candidate_feats"].as<int>();
   std::cout<<"<"<<trainingParameters.NumberOfCandidateFeatures<<">"<<std::endl;
 
-  std::cout<<"8. [Candidate Thresholds]";
+  std::cout<<"9. [Candidate Thresholds]";
   if (vm.count("candidate_thresh"))
     std::cout << "\t Number of Canidate Thresholds is set to ";
   else
@@ -217,7 +255,7 @@ void parseArguments(po::variables_map& vm)
   trainingParameters.NumberOfCandidateThresholdsPerFeature = vm["candidate_thresh"].as<int>();
   std::cout<<"<"<<trainingParameters.NumberOfCandidateThresholdsPerFeature<<">"<<std::endl;
 
-  std::cout<<"9. [SVM_C]";
+  std::cout<<"10. [SVM_C]";
   if (vm.count("svm_c"))
     std::cout << "\t C Param of SVM is set to ";
   else
@@ -226,7 +264,7 @@ void parseArguments(po::variables_map& vm)
   std::cout<<"<"<<trainingParameters.svm_c<<">"<<std::endl;
 
 
-  std::cout<<"10. [Verbosity]";
+  std::cout<<"11. [Verbosity]";
   if (vm.count("verbose"))
     std::cout << "\t Verbosity is set to ";
   else
@@ -235,7 +273,7 @@ void parseArguments(po::variables_map& vm)
   std::cout<<"<"<<trainingParameters.Verbose<<">"<<std::endl;
 
 
-  std::cout<<"11. [Computing Mode ]";
+  std::cout<<"12. [Computing Mode ]";
   if (vm.count("mode"))
     std::cout << "\t Mode is set to ";
   else
@@ -243,7 +281,7 @@ void parseArguments(po::variables_map& vm)
   mode = vm["mode"].as<std::string>();
   std::cout<<"<"<<mode<<">"<<std::endl;
 
-  std::cout<<"12. [Operating Mode ]";
+  std::cout<<"13. [Operating Mode ]";
   if (vm.count("op_mode"))
     std::cout << "\t Operating  Mode is set to ";
   else

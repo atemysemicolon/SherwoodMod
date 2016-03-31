@@ -16,6 +16,9 @@
 #include "Classification.h"
 #include "PlotCanvas.h"
 #include "ParallelForestTrainer.h"
+#include <fstream>
+#include <iostream>
+#include <iterator>
 
 namespace MicrosoftResearch { namespace Cambridge { namespace Sherwood
 {
@@ -145,8 +148,13 @@ namespace MicrosoftResearch { namespace Cambridge { namespace Sherwood
       /// <param name="forest">Trained forest</param>
       /// <param name="testData">Test data</param>
       /// <returns>An array of class distributions, one per test data point</returns>
-      static void Test(const Forest<F, HistogramAggregator>& forest, const DataPointCollection& testData, std::vector<HistogramAggregator>& distributions) // where F : IFeatureResponse
+      static void Test(const Forest<F, HistogramAggregator>& forest, const DataPointCollection& testData, std::vector<HistogramAggregator>& distributions, std::string filename_predict) // where F : IFeatureResponse
       {
+        //To save output
+        //std::ofstream FILE(filename_predict);
+        //std::ostream_iterator<float> output_iterator(FILE,"\t");
+
+
         int correct = 0 ;
         int nClasses = forest.GetTree(0).GetNode(0).TrainingDataStatistics.BinCount();
 
