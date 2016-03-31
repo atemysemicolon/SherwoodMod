@@ -15,6 +15,7 @@
 #include "DataPointCollection.h"
 #include "Classification.h"
 #include "PlotCanvas.h"
+#include "ParallelForestTrainer.h"
 
 namespace MicrosoftResearch { namespace Cambridge { namespace Sherwood
 {
@@ -123,13 +124,14 @@ namespace MicrosoftResearch { namespace Cambridge { namespace Sherwood
 
         ClassificationTrainingContext<F> classificationContext(trainingData.CountClasses(), featureFactory);
 
+
         std::auto_ptr<Forest<F, HistogramAggregator> > forest
-                = ForestTrainer<F, HistogramAggregator>::TrainForest (
+                = ForestTrainer<F, HistogramAggregator>::TrainForestParallel (
                         random, TrainingParameters, classificationContext, trainingData );
 
 
 
-        //      std::auto_ptr<Forest<F,HistogramAggregator> >forest = ParallelForestTrainer<F,HistogramAggregator>::TrainForest(random, TrainingParameters, classificationContext, trainingData);
+              //std::auto_ptr<Forest<F,HistogramAggregator> >forest2 = ParallelForestTrainer<F,HistogramAggregator>::TrainForest(random, TrainingParameters, classificationContext, trainingData);
 
         return forest;
       }
@@ -169,7 +171,7 @@ namespace MicrosoftResearch { namespace Cambridge { namespace Sherwood
           if(GT == pred_class)
             correct++;
 
-          std::cout<<"[DEBUG : GT, Class, probablility]  - "<<GT<<" "<<pred_class<<" "<<prob<<std::endl;
+          std::cout<<"[DEBUG : GT, Class, probablility]  - "<<GT<<" "<<pred_class<<" "<<prob<<"\t"<<bool(GT==pred_class)<<std::endl;
         }
 
         distributions  = result;

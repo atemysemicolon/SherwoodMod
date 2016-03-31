@@ -66,7 +66,7 @@ int main(int argc, char* argv[])
           ("data_test",po::value<std::string>()->default_value(test_filename), "Testing Data file")
           ("forest_loc",po::value<std::string>()->default_value(forest_loc), "Where to dump  or load the trained forest")
           ("dims",po::value<int>()->default_value(data_dimensions), "Dimensionality of data (Nr. of attributes)")
-          ("trees",po::value<int>()->default_value(10), "Number of Trees in the forest")
+          ("trees",po::value<int>()->default_value(50), "Number of Trees in the forest")
           ("dlevels",po::value<int>()->default_value(10), "Number of Decision Levels")
           ("candidate_feats",po::value<int>()->default_value(10), "Number of times to randomly choose a candidate feature")
           ("candidate_thresh",po::value<int>()->default_value(10), "Number of times to sample the threshold")
@@ -116,6 +116,11 @@ int main(int argc, char* argv[])
           = ClassificationDemo<LinearFeatureResponseSVM>::Train(*trainingData,
                                                                 &linearFeatureFactory,
                                                                 trainingParameters);
+
+    //Testing out regression
+    //std::auto_ptr<Forest<LinearFeatureResponseSVM, LinearFitAggregator1d> > forest2 = RegressionExample::Train(
+      //      *trainingData.get(), trainingParameters);
+
     forest->Serialize(forest_loc);
     forest.release();
   }
@@ -146,10 +151,11 @@ void parseArguments(po::variables_map& vm)
   std::cout<<"[PARSING ARGUMENTS] "<<std::endl;
 
   //Data_Train
+  std::cout<<"2. [Training Data]";
   if (vm.count("Training Data"))
-    std::cout << "1. [data_train] \t Training data source was set to ";
+    std::cout << "\t Training data source was set to ";
   else
-    std::cout << "1. [data_train] \t Training Data source was not set. Using Default...";
+    std::cout << "\t Training Data source was not set. Using Default...";
   train_filename = vm["data_train"].as<std::string>();
   std::cout<<"<"<<train_filename<<">"<<std::endl;
 
@@ -213,9 +219,9 @@ void parseArguments(po::variables_map& vm)
 
   std::cout<<"9. [SVM_C]";
   if (vm.count("svm_c"))
-    std::cout << "\t Number of Canidate Features is set to ";
+    std::cout << "\t C Param of SVM is set to ";
   else
-    std::cout << "\t Number of Canidate Features was not set. Using Default...";
+    std::cout << "\t C Param of SVM was not set. Using Default...";
   trainingParameters.svm_c = vm["svm_c"].as<float>();
   std::cout<<"<"<<trainingParameters.svm_c<<">"<<std::endl;
 
