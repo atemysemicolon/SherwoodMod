@@ -47,8 +47,8 @@ std::string test_filename = "../../demo/data/sclf/sample_test.txt";
 std::string predict_filename = "../../demo/data/sclf/sample_predict.txt";
 //float svm_c = 0.5;
 std::string mode = "Standard";
-bool train_flag = true;
-bool test_flag = true;
+bool train_flag = false;
+bool test_flag = false;
 std::string forest_loc ="forest.out";
 int main(int argc, char* argv[])
 {
@@ -70,7 +70,7 @@ int main(int argc, char* argv[])
           ("data_predict",po::value<std::string>()->default_value(predict_filename), "Predicted output file - Will be (over)written")
           ("forest_loc",po::value<std::string>()->default_value(forest_loc), "Where to dump  or load the trained forest")
           ("dims",po::value<int>()->default_value(data_dimensions), "Dimensionality of data (Nr. of attributes)")
-          ("trees",po::value<int>()->default_value(50), "Number of Trees in the forest")
+          ("trees",po::value<int>()->default_value(10), "Number of Trees in the forest")
           ("dlevels",po::value<int>()->default_value(10), "Number of Decision Levels")
           ("candidate_feats",po::value<int>()->default_value(10), "Number of times to randomly choose a candidate feature")
           ("candidate_thresh",po::value<int>()->default_value(10), "Number of times to sample the threshold")
@@ -94,27 +94,25 @@ int main(int argc, char* argv[])
 
 
 
-  std::auto_ptr<DataPointCollection> trainingData
-          = std::auto_ptr<DataPointCollection> ( LoadTrainingData(train_filename,
-                                                                  dummy,
-                                                                  data_dimensions,
-                                                                  DataDescriptor::HasClassLabels ) );
 
 
 
-  std::auto_ptr<DataPointCollection> testdata
-          = std::auto_ptr<DataPointCollection> ( LoadTrainingData(test_filename,
-                                                                  dummy,
-                                                                  data_dimensions,
-                                                                  DataDescriptor::HasClassLabels ) );
 
 
 
+/*
   if (trainingData.get()==0)
-    return 0; // LoadTrainingData() generates its own progress/error messages
+       return 0; // LoadTrainingData() generates its own progress/error messages
+    */
 
   if(train_flag)
   {
+      std::auto_ptr<DataPointCollection> trainingData
+              = std::auto_ptr<DataPointCollection> ( LoadTrainingData(train_filename,
+                                                                      dummy,
+                                                                      data_dimensions,
+                                                                      DataDescriptor::HasClassLabels ) );
+
     LinearFeatureSVMFactory linearFeatureFactory;
     std::auto_ptr<Forest<LinearFeatureResponseSVM, HistogramAggregator> > forest
           = ClassificationDemo<LinearFeatureResponseSVM>::Train(*trainingData,
@@ -132,6 +130,12 @@ int main(int argc, char* argv[])
 
   if(test_flag)
   {
+      std::auto_ptr<DataPointCollection> testdata
+              = std::auto_ptr<DataPointCollection> ( LoadTrainingData(test_filename,
+                                                                      dummy,
+                                                                      data_dimensions,
+                                                                      DataDescriptor::HasClassLabels ) );
+
     std::auto_ptr<Forest<LinearFeatureResponseSVM, HistogramAggregator> > trained_forest
             = Forest<LinearFeatureResponseSVM, HistogramAggregator>::Deserialize(forest_loc);
 
@@ -319,6 +323,12 @@ std::auto_ptr<DataPointCollection> LoadTrainingData(
   DataDescriptor::e descriptor)
 {
   std::ifstream r;
+
+    r.open(filename.c_str());
+    int dims = 0;
+    std::string line;
+    r>>line;
+    r.close ();
 
   r.open(filename.c_str());
 

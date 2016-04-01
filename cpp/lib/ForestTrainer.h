@@ -270,7 +270,8 @@ namespace MicrosoftResearch { namespace Cambridge { namespace Sherwood
       const IDataPointCollection& data,
       ProgressStream* progress=0)
     {
-      ProgressStream defaultProgress(std::cout, parameters.Verbose? Verbose:Interest);
+      //ProgressStream defaultProgress(std::cout, parameters.Verbose? Verbose:Interest);
+      ProgressStream defaultProgress(std::cout, Silent);
       if(progress==0)
         progress=&defaultProgress;
 
@@ -348,7 +349,7 @@ namespace MicrosoftResearch { namespace Cambridge { namespace Sherwood
 
         std::auto_ptr<Forest<F,S> > forest = std::auto_ptr<Forest<F,S> >(new Forest<F,S>());
 
-        #pragma omp parallel for num_threads(1)
+        #pragma omp parallel for num_threads(8)
         for (int t = 0; t < parameters.NumberOfTrees; t++)
         {
           #pragma omp critical
@@ -356,6 +357,7 @@ namespace MicrosoftResearch { namespace Cambridge { namespace Sherwood
             (*progress)[Interest] << "\rTraining tree "<< t << "...";
           }
 
+          //std::auto_ptr<Tree<F, S> > tree = TreeTrainer<F, S>::TrainTree(random, context, parameters, data, progress);
           std::auto_ptr<Tree<F, S> > tree = TreeTrainer<F, S>::TrainTree(random, context, parameters, data, progress);
           #pragma omp critical
           {

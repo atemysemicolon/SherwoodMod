@@ -10,7 +10,7 @@ import random
 def create_random_3d(above,negate=False):
     x,y,z = random.randint(0,10), random.randint(0,10),random.randint(0,10)
     if(above):
-        x,y,z = x+10,y+10,z+10;        
+        x,y,z = -x,-y,-z;        
     if(negate):
         return str(int(above)+2), str(-x),str(-y),str(-z)
     return str(int(above)), str(x),str(y),str(z)
@@ -38,8 +38,8 @@ nums = [a%2 == 0 for a in range(0,200)]
 #sample_data_str = ['\t'.join(s)+'\n' for s in sample_data]
 data = ['\t'.join(create_random_3d(n))+'\n' for n in random.sample(nums,len(nums))]
 #data.extend(['\t'.join(create_random_3d(n, True))+'\n' for n in random.sample(nums,len(nums))])
-open('sample_test.txt','w').writelines(random.sample(data,len(data)))
-data = ['\t'.join(create_random_3d(n))+'\n' for n in random.sample(nums,len(nums))]
-#data.extend(['\t'.join(create_random_3d(n, True))+'\n' for n in random.sample(nums,len(nums))])
-open('sample_train.txt','w').writelines(random.sample(data,len(data)))
 
+#data = ['\t'.join(create_random_3d(n))+'\n' for n in random.sample(nums,len(nums))]
+#data.extend(['\t'.join(create_random_3d(n, True))+'\n' for n in random.sample(nums,len(nums))])
+open('sample_train.txt','w').writelines(random.sample(data,len(data)/2))
+open('sample_test.txt','w').writelines(random.sample(data,len(data)/2))
