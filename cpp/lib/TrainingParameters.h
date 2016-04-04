@@ -8,9 +8,10 @@
 #include <vector>
 #include <string>
 #include <algorithm>
-
+#define NR_THREADS 8
 namespace MicrosoftResearch { namespace Cambridge { namespace Sherwood
 {
+
   /// <summary>
   /// Decision tree training parameters.
   /// </summary>

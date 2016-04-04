@@ -30,6 +30,8 @@ void DisplayTextFiles(const std::string& relativePath);
 
 void writePredData(std::string filename,std::vector<HistogramAggregator> &distbns);
 
+int discoverDims(std::string filename);
+
 std::auto_ptr<DataPointCollection> LoadTrainingData(
   const std::string& filename,
   const std::string& alternativePath,
@@ -50,6 +52,8 @@ std::string mode = "Standard";
 bool train_flag = false;
 bool test_flag = false;
 std::string forest_loc ="forest.out";
+
+
 int main(int argc, char* argv[])
 {
 
@@ -70,10 +74,10 @@ int main(int argc, char* argv[])
           ("data_predict",po::value<std::string>()->default_value(predict_filename), "Predicted output file - Will be (over)written")
           ("forest_loc",po::value<std::string>()->default_value(forest_loc), "Where to dump  or load the trained forest")
           ("dims",po::value<int>()->default_value(data_dimensions), "Dimensionality of data (Nr. of attributes)")
-          ("trees",po::value<int>()->default_value(10), "Number of Trees in the forest")
+          ("trees",po::value<int>()->default_value(50), "Number of Trees in the forest")
           ("dlevels",po::value<int>()->default_value(10), "Number of Decision Levels")
-          ("candidate_feats",po::value<int>()->default_value(10), "Number of times to randomly choose a candidate feature")
-          ("candidate_thresh",po::value<int>()->default_value(10), "Number of times to sample the threshold")
+          ("candidate_feats",po::value<int>()->default_value(50), "Number of times to randomly choose a candidate feature")
+          ("candidate_thresh",po::value<int>()->default_value(50), "Number of times to sample the threshold")
           ("svm_c",po::value<float>()->default_value(0.5), "C Parameter of the SVM")
           ("verbose",po::value<bool>()->default_value(true), "Display output")
           ("mode",po::value<std::string>()->default_value("Standard"), "Random Forest operating mode")
@@ -97,9 +101,6 @@ int main(int argc, char* argv[])
 
 
 
-
-
-
 /*
   if (trainingData.get()==0)
        return 0; // LoadTrainingData() generates its own progress/error messages
@@ -107,6 +108,7 @@ int main(int argc, char* argv[])
 
   if(train_flag)
   {
+      data_dimensions = discoverDims (train_filename);
       std::auto_ptr<DataPointCollection> trainingData
               = std::auto_ptr<DataPointCollection> ( LoadTrainingData(train_filename,
                                                                       dummy,
@@ -130,6 +132,7 @@ int main(int argc, char* argv[])
 
   if(test_flag)
   {
+      data_dimensions = discoverDims (test_filename);
       std::auto_ptr<DataPointCollection> testdata
               = std::auto_ptr<DataPointCollection> ( LoadTrainingData(test_filename,
                                                                       dummy,
@@ -157,6 +160,27 @@ int main(int argc, char* argv[])
 }
 
 
+
+int discoverDims(std::string filename)
+{
+  std::ifstream FILE(filename);
+  std::string line;
+  if(!FILE.is_open ())
+    return -1;
+
+
+  //FILE>>line;
+    getline (FILE,line);
+    std::vector<char> data(line.begin(), line.end());
+int count =  std::count(data.begin (),data.end (), '\t');
+    getline (FILE,line);
+    data = std::vector<char> (line.begin(), line.end());
+    int count2 =  std::count(data.begin (),data.end (), '\t');
+    FILE.close ();
+
+    std::cout<<"Discovered Dimensions are : "<<count * (count==count2)<<std::endl;
+  return count * (count==count2);
+}
 
 void writePredData(std::string filename,std::vector<HistogramAggregator> &distbns)
 {
@@ -217,6 +241,7 @@ void parseArguments(po::variables_map& vm)
     std::cout << "\t Forest Location source was not set. Using Default...";
   forest_loc = vm["forest_loc"].as<std::string>();
   std::cout<<"<"<<forest_loc<<">"<<std::endl;
+
 
   std::cout<<"5. [Dimensionality of the data]";
   if (vm.count("dims"))

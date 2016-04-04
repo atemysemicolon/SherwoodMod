@@ -198,7 +198,7 @@ namespace MicrosoftResearch { namespace Cambridge { namespace Sherwood
         lr.dimensions_ = concreteData.Dimensions();
 
 
-        GenerateMaskLBP (random, lr.vIndex_, lr.dimensions_, root_node); //CHANGE THIS DEPENDING ON OPERATION
+        GenerateMaskFisher (random, lr.vIndex_, lr.dimensions_, root_node); //CHANGE THIS DEPENDING ON OPERATION
         int nWeights = lr.vIndex_.size();
         //std::cout<<"[DEBUG - printing weights] : "<<nWeights<<std::endl;
 

@@ -349,7 +349,7 @@ namespace MicrosoftResearch { namespace Cambridge { namespace Sherwood
 
         std::auto_ptr<Forest<F,S> > forest = std::auto_ptr<Forest<F,S> >(new Forest<F,S>());
 
-        #pragma omp parallel for num_threads(8)
+        #pragma omp parallel for num_threads(4)
         for (int t = 0; t < parameters.NumberOfTrees; t++)
         {
           #pragma omp critical
