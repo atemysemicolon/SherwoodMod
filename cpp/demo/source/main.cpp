@@ -146,7 +146,7 @@ int main(int argc, char* argv[])
     std::vector<HistogramAggregator> distbns;
     ClassificationDemo<LinearFeatureResponseSVM>::Test(*trained_forest.get(),
                                                        *testdata.get(),
-                                                       distbns,predict_filename);
+                                                       distbns);
 
       std::cout<<"[WRITING PREDICTED DATA]"<<std::endl;
       writePredData (predict_filename, distbns);

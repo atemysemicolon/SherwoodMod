@@ -4,7 +4,7 @@ project(cpp)
 #Defaults
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/bin/linux")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -w") #No Warnings while compiling
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -w -fPIC") #No Warnings while compiling
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 
@@ -73,6 +73,9 @@ add_executable(sw ${SOURCE_FILES})
 #target_link_libraries(sw ${Boost_LIBRARIES} ${PYTHON_LIBRARIES} svmlib svm)
 target_link_libraries(sw ${Boost_LIBRARIES} svmlib svm)
 
+add_library(rfsvmlib ${SOURCE_FILES})
+target_link_libraries(rfsvmlib ${Boost_LIBRARIES} svmlib svm)
+
 
 #PyWrapper
 include_directories(
@@ -89,4 +92,4 @@ set_target_properties(Rfsvm PROPERTIES PREFIX "")
 if(WIN32)
     set_target_properties(Rfsvm PROPERTIES SUFFIX ".pyd")
 endif(WIN32)
-target_link_libraries(Rfsvm ${Boost_LIBRARIES} ${PYTHON_LIBRARIES} ${BOOST_NUMPY_LIBRARY})
+target_link_libraries(Rfsvm ${Boost_LIBRARIES} ${PYTHON_LIBRARIES} ${BOOST_NUMPY_LIBRARY} rfsvmlib)

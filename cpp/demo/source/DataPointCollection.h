@@ -33,6 +33,7 @@ namespace MicrosoftResearch { namespace Cambridge { namespace Sherwood
   /// </summary>
   class DataPointCollection: public IDataPointCollection
   {
+  public:
     std::vector<float> data_;
     int dimension_;
 

@@ -1,8 +1,11 @@
 ﻿***FORK OF MICROSOFT'S SHERWOOD LIBRARY***
 **Don't know the License format. Please refer to the original for rights**
 
-EXTRA DEPENDENCY : libsvm (as a library where c++ should automatically look), libboost
+EXTRA DEPENDENCY : libsvm (as a library where c++ should automatically look), libboost (for arguments parsing and python wrapper), Boost.NumPy
 Ubuntu : sudo apt-get install libsvm libboost-all-dev
+
+For Boost.Numpy, build the following repository : https://github.com/ndarray/Boost.NumPy
+
 
 
 *http://research.microsoft.com/en-us/downloads/52d5b9c3-a638-42a1-94a5-d549e2251728/*

@@ -148,7 +148,7 @@ namespace MicrosoftResearch { namespace Cambridge { namespace Sherwood
       /// <param name="forest">Trained forest</param>
       /// <param name="testData">Test data</param>
       /// <returns>An array of class distributions, one per test data point</returns>
-      static void Test(const Forest<F, HistogramAggregator>& forest, const DataPointCollection& testData, std::vector<HistogramAggregator>& distributions, std::string filename_predict) // where F : IFeatureResponse
+      static void Test(const Forest<F, HistogramAggregator>& forest, const DataPointCollection& testData, std::vector<HistogramAggregator>& distributions) // where F : IFeatureResponse
       {
         //To save output
         //std::ofstream FILE(filename_predict);
