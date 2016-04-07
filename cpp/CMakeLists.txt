@@ -73,7 +73,9 @@ add_executable(sw ${SOURCE_FILES})
 #target_link_libraries(sw ${Boost_LIBRARIES} ${PYTHON_LIBRARIES} svmlib svm)
 target_link_libraries(sw ${Boost_LIBRARIES} svmlib svm)
 
-add_library(rfsvmlib ${SOURCE_FILES})
+
+
+#[[add_library(rfsvmlib ${SOURCE_FILES})
 target_link_libraries(rfsvmlib ${Boost_LIBRARIES} svmlib svm)
 
 
@@ -92,4 +94,4 @@ set_target_properties(Rfsvm PROPERTIES PREFIX "")
 if(WIN32)
     set_target_properties(Rfsvm PROPERTIES SUFFIX ".pyd")
 endif(WIN32)
-target_link_libraries(Rfsvm ${Boost_LIBRARIES} ${PYTHON_LIBRARIES} ${BOOST_NUMPY_LIBRARY} rfsvmlib)
+target_link_libraries(Rfsvm ${Boost_LIBRARIES} ${PYTHON_LIBRARIES} ${BOOST_NUMPY_LIBRARY} rfsvmlib)]]

@@ -185,10 +185,22 @@ namespace MicrosoftResearch { namespace Cambridge { namespace Sherwood
     }
 
 
+    void LinearFeatureResponseSVM::GenerateMaskHypercolumn(Random &random, std::vector<int> &vIndex, int dims,
+                                                           bool root_node)
+    {
+
+        //Discarding LBP and position to check
+        int numBloks = random.Next (1, NN_FULL_DIMS);
+        for(int i=0;i<numBloks;i++)
+        {
+            int idx = random.Next (0,NN_FULL_DIMS);
+            vIndex.push_back (idx);
+        }
+
+    }
 
 
-
-    LinearFeatureResponseSVM LinearFeatureResponseSVM::CreateRandom(Random& random, const IDataPointCollection& data, unsigned int* dataIndices, const unsigned int i0, const unsigned int i1,float svm_c, bool root_node)
+            LinearFeatureResponseSVM LinearFeatureResponseSVM::CreateRandom(Random& random, const IDataPointCollection& data, unsigned int* dataIndices, const unsigned int i0, const unsigned int i1,float svm_c, bool root_node)
     {
         //HACK - Modifying this
         using namespace esvm;
@@ -198,7 +210,7 @@ namespace MicrosoftResearch { namespace Cambridge { namespace Sherwood
         lr.dimensions_ = concreteData.Dimensions();
 
 
-        GenerateMask (random, lr.vIndex_, lr.dimensions_, root_node); //CHANGE THIS DEPENDING ON OPERATION
+        GenerateMaskHypercolumn (random, lr.vIndex_, lr.dimensions_, root_node); //CHANGE THIS DEPENDING ON OPERATION
         int nWeights = lr.vIndex_.size();
         //std::cout<<"[DEBUG - printing weights] : "<<nWeights<<std::endl;
 
@@ -224,17 +236,25 @@ namespace MicrosoftResearch { namespace Cambridge { namespace Sherwood
 
         //SVM TRAINING PART
         SVMClassifier svm;
-        svm.setDisplay(true);
+        svm.setDisplay(false);
         svm.setC(svm_c);
         svm.train(vFeatures, vLabels);
         Eigen::MatrixXf w;
         float b;
         svm.getw(w, lr.bias_);
+        lr.bias_=-1*lr.bias_;
 
 
         //Hacky way
         for(int k=0;k<w.rows();k++)
             lr.vWeights_.push_back(w(k,0));
+
+        /*std::cout<<"Features -> (rows, columns)"<<vFeatures.rows()<<" "<<vFeatures.cols()<<std::endl;
+        std::cout<<"Dims -> Weights(eigen) vs weights(lr)"<<w.rows()<<"\t"<<lr.vWeights_.size()<<std::endl;
+       for(int i=0;i<10;i++)
+            std::cout<<lr.vWeights_[i]<<" ";
+
+        std::cout<<std::endl;*/
 
 
 
@@ -248,9 +268,20 @@ namespace MicrosoftResearch { namespace Cambridge { namespace Sherwood
 
     float LinearFeatureResponseSVM::GetResponse(const IDataPointCollection& data, unsigned int index) const
     {
+
         const DataPointCollection& concreteData = (const DataPointCollection&)(data);
         std::vector<float> rowData = concreteData.GetDataPointRange(index);
-        float response = std::inner_product(rowData.begin(),rowData.end(), vWeights_.begin(), bias_);
+        //std::vector<float> vFeatures;
+        float response = bias_;
+        //std::cout<<"At getresponse "<<rowData.size ()<<std::endl;
+        //MANUAL WAY
+        for(int j=0;j<vWeights_.size();j++) {
+            response+=rowData[vIndex_[j]]*vWeights_[j];
+            //std::cout<<"[DEBUG - printing features] : "<<vFeatures(indx,j)<<", ";
+        }
+
+        //aUTOMATIC WAY
+        //float response = std::inner_product(vFeatures.begin(),vFeatures.end(), vWeights_.begin(), bias_);
         return response;
     }
 

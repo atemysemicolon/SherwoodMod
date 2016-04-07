@@ -24,6 +24,9 @@ namespace MicrosoftResearch { namespace Cambridge { namespace Sherwood
     #define HYPERFISHER_LBP_DIM (2*HYPER_LBP_PAIRS) //2*3776 -->
     #define HYPER_FISHER_DIM (HYPER_MACHINE_DIM+HYPER_LBP_DIM+HYPER_LOCATION_DIM) //2048 + 2*3776
     #define BLOK_SIZE_SUPERPIXEL 2
+#define NN_DIM 64
+#define SUPERPIXEL_STATISTICS 2
+#define NN_FULL_DIMS (NN_DIM*SUPERPIXEL_STATISTICS)
 
   /// <summary>
   /// A feature that orders data points using one of their coordinates,
@@ -180,6 +183,7 @@ namespace MicrosoftResearch { namespace Cambridge { namespace Sherwood
         static void GenerateMask(Random& random, std::vector<int>& vIndex, int dims , bool root_node);
         static void GenerateMaskFisher(Random& random, std::vector<int>& vIndex, int dims , bool root_node);
         static void GenerateMaskLBP(Random& random, std::vector<int>& vIndex, int dims , bool root_node);
+        static void GenerateMaskHypercolumn(Random& random, std::vector<int>& vIndex, int dims , bool root_node);
 
 
         float GetResponse(const IDataPointCollection &data, unsigned int index) const;

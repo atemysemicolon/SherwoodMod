@@ -63,6 +63,7 @@ int main(int argc, char* argv[])
   trainingParameters.NumberOfCandidateThresholdsPerFeature = 10;
   trainingParameters.NumberOfTrees = 10;
   trainingParameters.Verbose = true;
+  trainingParameters.igType =  ig_shannon;
 
 
 

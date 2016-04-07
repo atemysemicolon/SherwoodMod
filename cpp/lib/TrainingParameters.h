@@ -11,8 +11,10 @@
 #define NR_THREADS 8
 namespace MicrosoftResearch { namespace Cambridge { namespace Sherwood
 {
+  enum IGType { ig_unknown=-1, ig_shannon, ig_reweighted, ig_gini };
 
-  /// <summary>
+
+            /// <summary>
   /// Decision tree training parameters.
   /// </summary>
   struct TrainingParameters
@@ -33,5 +35,6 @@ namespace MicrosoftResearch { namespace Cambridge { namespace Sherwood
     int MaxDecisionLevels;
     bool Verbose;
     float svm_c;
+    IGType  igType;
   };
 } } }

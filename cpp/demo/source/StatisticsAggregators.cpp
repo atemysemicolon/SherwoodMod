@@ -21,6 +21,44 @@ namespace MicrosoftResearch { namespace Cambridge { namespace Sherwood
     return result;
   }
 
+    double HistogramAggregator::EntropyGINI() const
+    {
+      if (sampleCount_ == 0)
+        return 0.0;
+
+      //double result = 1.0;
+      //for (int b = 0; b < BinCount(); b++)
+      //{
+      //  double p = (double)bins_[b] / (double)sampleCount_;
+      //  result -= p * p/2.0;
+      //}
+
+      double result = 1.0;
+      for (int b = 0; b < BinCount(); b++)
+      {
+        double p = (double)bins_[b] / (double)sampleCount_;
+        result -= p * p;
+      }
+
+      return result/2.0;
+    }
+
+    double HistogramAggregator::Entropy(const unsigned short *priorBins, const unsigned int priorSampleCount) const
+    {
+      if (sampleCount_ == 0)
+        return 0.0;
+
+      double result = 0.0;
+      for (int b = 0; b < BinCount(); b++)
+      {
+        double invPriorP = (double)priorSampleCount/(double)priorBins[b];
+        double p = (double)bins_[b] / (double)sampleCount_;
+        result -= p == 0.0 ? 0.0 : invPriorP*p * log(p)/log(2.0);
+      }
+
+      return result;
+    }
+
   HistogramAggregator::HistogramAggregator()
   {
     binCount_ = 0;

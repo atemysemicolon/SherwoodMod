@@ -57,7 +57,7 @@ namespace esvm {
 
     void SVMClassifier::setDisplay(bool quiet)
     {
-      if(quiet)
+      if(!quiet)
         svm_set_print_string_function(print_null);
     }
 

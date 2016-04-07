@@ -26,6 +26,8 @@ namespace MicrosoftResearch { namespace Cambridge { namespace Sherwood
 
   public:
     double Entropy() const;
+    double EntropyGINI() const;
+    double Entropy(const unsigned short *priorBins, const unsigned int priorSampleCount) const;
 
     HistogramAggregator();
 
