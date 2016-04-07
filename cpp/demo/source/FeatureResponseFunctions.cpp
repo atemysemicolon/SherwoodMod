@@ -190,11 +190,12 @@ namespace MicrosoftResearch { namespace Cambridge { namespace Sherwood
     {
 
         //Discarding LBP and position to check
-        int numBloks = random.Next (1, NN_FULL_DIMS);
+        int numBloks = random.Next (5, 15);
         for(int i=0;i<numBloks;i++)
         {
-            int idx = random.Next (0,NN_FULL_DIMS);
+            int idx = random.Next (0,NN_DIM);
             vIndex.push_back (idx);
+            vIndex.push_back (idx+NN_DIM);
         }
 
     }
@@ -230,11 +231,12 @@ namespace MicrosoftResearch { namespace Cambridge { namespace Sherwood
             }
             //std::cout<<std::endl;
             vLabels[indx] = (int)((DataPointCollection&)data).GetIntegerLabel(dataIndices[i]);
-            //std::cout<<"[DEBUG - printing labels] : "<<vLabels[indx]<<","<<i<<std::endl;
+
 
         }
 
         //SVM TRAINING PART
+        //std::cout<<"[DEBUG - printing sizes - Weights | Features] : "<<nWeights<<"|"<<vFeatures.rows()<<","<<vFeatures.cols()<<std::endl;
         SVMClassifier svm;
         svm.setDisplay(false);
         svm.setC(svm_c);
@@ -244,10 +246,13 @@ namespace MicrosoftResearch { namespace Cambridge { namespace Sherwood
         svm.getw(w, lr.bias_);
         lr.bias_=-1*lr.bias_;
 
-
+        lr.vWeights_.resize(lr.dimensions_, 0);
         //Hacky way
         for(int k=0;k<w.rows();k++)
-            lr.vWeights_.push_back(w(k,0));
+            lr.vWeights_[lr.vIndex_[k]] = w(k,0);
+            //lr.vWeights_.push_back(w(k,0));
+
+        //std::cout<<" [Debug - at feature response weight size] "<<lr.vWeights_.size ()<<std::endl;
 
         /*std::cout<<"Features -> (rows, columns)"<<vFeatures.rows()<<" "<<vFeatures.cols()<<std::endl;
         std::cout<<"Dims -> Weights(eigen) vs weights(lr)"<<w.rows()<<"\t"<<lr.vWeights_.size()<<std::endl;
@@ -271,17 +276,19 @@ namespace MicrosoftResearch { namespace Cambridge { namespace Sherwood
 
         const DataPointCollection& concreteData = (const DataPointCollection&)(data);
         std::vector<float> rowData = concreteData.GetDataPointRange(index);
-        //std::vector<float> vFeatures;
-        float response = bias_;
-        //std::cout<<"At getresponse "<<rowData.size ()<<std::endl;
-        //MANUAL WAY
+
+
+        /*//MANUAL WAY
+          //std::vector<float> vFeatures;
+          //std::cout<<"[Debug At getresponse weight size]"<<vWeights_.size ()<<std::endl;
+          float response = bias_;
         for(int j=0;j<vWeights_.size();j++) {
             response+=rowData[vIndex_[j]]*vWeights_[j];
-            //std::cout<<"[DEBUG - printing features] : "<<vFeatures(indx,j)<<", ";
-        }
+            //std::cout<<"[DEBUG FEATURERESPONSE - printing online response | step] : "<<response<<"   "<<j<<std::endl;
+        }*/
 
         //aUTOMATIC WAY
-        //float response = std::inner_product(vFeatures.begin(),vFeatures.end(), vWeights_.begin(), bias_);
+        float response = std::inner_product(rowData.begin(),rowData.end(), vWeights_.begin(), bias_);
         return response;
     }
 

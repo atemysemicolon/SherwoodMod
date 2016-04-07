@@ -75,6 +75,10 @@ namespace MicrosoftResearch { namespace Cambridge { namespace Sherwood
     for(int b=0; b<binCount_; b++)
       bins_[b] = 0;
     sampleCount_ = 0;
+    binCount_ = nClasses;
+    for(int i=0;i<nClasses;i++)
+      uniqueBins_.insert (i);
+
   }
 
   float HistogramAggregator::GetProbability(int classIndex) const
@@ -111,8 +115,12 @@ namespace MicrosoftResearch { namespace Cambridge { namespace Sherwood
   void HistogramAggregator::Aggregate(const IDataPointCollection& data, unsigned int index)
   {
     const DataPointCollection& concreteData = (const DataPointCollection&)(data);
-
-    bins_[concreteData.GetIntegerLabel((int)index)]++;
+    int label = concreteData.GetIntegerLabel ((int) index);
+    //std::cout<<"[Debug - HISTOGRAMAGGREGATOR] label : "<<label<<std::endl;
+    //bins_[concreteData.GetIntegerLabel((int)index)]++;
+    bins_[label]++;
+    uniqueBins_.insert (label);
+    //std::cout<<"[Debug - HISTOGRAMAGGREGATOR] bins[label] : "<<bins_[label]<<std::endl;
     sampleCount_ += 1;
   }
 
@@ -121,8 +129,10 @@ namespace MicrosoftResearch { namespace Cambridge { namespace Sherwood
     assert(aggregator.BinCount() == BinCount());
 
     for (int b = 0; b < BinCount(); b++)
+    {
       bins_[b] += aggregator.bins_[b];
-
+      uniqueBins_.insert(b);
+    }
     sampleCount_ += aggregator.sampleCount_;
   }
 

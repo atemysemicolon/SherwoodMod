@@ -13,12 +13,15 @@
 #include "Sherwood.h"
 
 #include "DataPointCollection.h"
+#include <set>
 
 namespace MicrosoftResearch { namespace Cambridge { namespace Sherwood
 {
   struct HistogramAggregator
   {
+
   public:
+      std::set<int> uniqueBins_;
     unsigned short bins_[4];
     int binCount_;
 
@@ -35,7 +38,7 @@ namespace MicrosoftResearch { namespace Cambridge { namespace Sherwood
 
     float GetProbability(int classIndex) const;
 
-    int BinCount() const {return binCount_; }
+    int BinCount() const {return uniqueBins_.size (); }
 
     unsigned int SampleCount() const { return sampleCount_; }
 

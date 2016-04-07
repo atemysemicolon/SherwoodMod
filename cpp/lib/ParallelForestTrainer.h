@@ -119,6 +119,11 @@ namespace MicrosoftResearch { namespace Cambridge { namespace Sherwood
     {
       parameters_ = parameters;
 
+      //ADDED MANUALLY
+      parentStatistics_ = trainingContext_.GetStatisticsAggregator();
+      leftChildStatistics_ = trainingContext_.GetStatisticsAggregator();
+      rightChildStatistics_ = trainingContext_.GetStatisticsAggregator();
+
       indices_ .resize(data.Count());
       for (DataPointIndex i = 0; i < indices_.size(); i++)
         indices_[i] = i;
@@ -197,7 +202,8 @@ namespace MicrosoftResearch { namespace Cambridge { namespace Sherwood
             }
 
             // Compute gain over sample partitions
-            double gain = trainingContext_.ComputeInformationGain(tl.parentStatistics_, tl.leftChildStatistics_,tl. rightChildStatistics_);
+            double gain = trainingContext_.ComputeInformationGain(tl.parentStatistics_, tl.leftChildStatistics_,tl.rightChildStatistics_);
+            //std::cout<<" [DEBUG -Gain vs MaxGain]"<<gain<<" vs. "<<tl.maxGain<<std::endl;
 
             if (gain >= tl.maxGain)
             {
@@ -240,11 +246,11 @@ namespace MicrosoftResearch { namespace Cambridge { namespace Sherwood
 
       for (DataPointIndex i = i0; i < i1; i++)
       {
-        responses_[i] = bestFeature.GetResponse(data_, indices_[i]);
+        responses_[i] = bestFeature.GetResponse(data, indices_[i]);
         if (responses_[i] < bestThreshold)
-          leftChildStatistics_.Aggregate(data_, indices_[i]);
+          leftChildStatistics_.Aggregate(data, indices_[i]);
         else
-          rightChildStatistics_.Aggregate(data_, indices_[i]);
+          rightChildStatistics_.Aggregate(data, indices_[i]);
       }
 
       if (trainingContext_.ShouldTerminate(parentStatistics_, leftChildStatistics_, rightChildStatistics_, maxGain))
@@ -383,7 +389,7 @@ namespace MicrosoftResearch { namespace Cambridge { namespace Sherwood
       const TrainingParameters& parameters,
       ITrainingContext<F,S>& context,
       const IDataPointCollection& data,
-      int maxThreads=4,
+      int maxThreads=1,
       ProgressStream* progress=0)
     {
       ProgressStream defaultProgress(std::cout, parameters.Verbose? Verbose:Interest);

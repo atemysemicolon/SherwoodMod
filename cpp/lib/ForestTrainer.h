@@ -145,6 +145,7 @@ namespace MicrosoftResearch { namespace Cambridge { namespace Sherwood
 
           // Compute gain over sample partitions
           double gain = trainingContext_.ComputeInformationGain(parentStatistics_, leftChildStatistics_, rightChildStatistics_);
+          //std::cout<<" [DEBUG -Gain vs MaxGain]"<<gain<<" vs. "<<maxGain<<std::endl;
 
           if (gain >= maxGain)
           {
@@ -349,7 +350,7 @@ namespace MicrosoftResearch { namespace Cambridge { namespace Sherwood
 
         std::auto_ptr<Forest<F,S> > forest = std::auto_ptr<Forest<F,S> >(new Forest<F,S>());
 
-        #pragma omp parallel for num_threads(6)
+        #pragma omp parallel for num_threads(4)
         for (int t = 0; t < parameters.NumberOfTrees; t++)
         {
           #pragma omp critical
